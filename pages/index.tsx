@@ -1,7 +1,6 @@
 import React, { Suspense, useState } from "react";
 import { Interactive, XR, ARButton, Controllers } from "@react-three/xr";
 import { Canvas } from "@react-three/fiber";
-import { Text } from "@react-three/drei";
 
 function Box({ color, size, scale, children, ...rest }: any) {
   return (
