@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev-https": "node server.js",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -12,9 +13,12 @@
     "@react-three/drei": "^9.37.1",
     "@react-three/fiber": "^8.8.10",
     "@react-three/xr": "^5.0.4",
+    "mapbox-gl": "^2.10.0",
     "next": "12.3.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-geolocated": "^4.0.3",
+    "react-map-gl": "^7.0.19",
     "three": "^0.145.0"
   },
   "devDependencies": {

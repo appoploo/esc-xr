@@ -1,55 +1,38 @@
-import React, { Suspense, useState } from "react";
-import { Interactive, XR, ARButton, Controllers } from "@react-three/xr";
-import { Canvas } from "@react-three/fiber";
+import Map, { Marker } from "react-map-gl";
+import { useGeolocated } from "react-geolocated";
+import { ARButton } from "@react-three/xr";
 
-function Box({ color, size, scale, children, ...rest }: any) {
-  return (
-    <mesh scale={scale} {...rest}>
-      <boxBufferGeometry args={size} />
-      <meshPhongMaterial color={color} />
-      {children}
-    </mesh>
-  );
-}
+const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
-function Button(props: any) {
-  const [hover, setHover] = useState(false);
-  const [color, setColor] = useState<any>("blue");
-
-  const onSelect = () => {
-    setColor((Math.random() * 0xffffff) | 0);
-  };
-
-  return (
-    <Interactive
-      onHover={() => setHover(true)}
-      onBlur={() => setHover(false)}
-      onSelect={onSelect}
-    >
-      <Box
-        color={color}
-        scale={hover ? [0.6, 0.6, 0.6] : [0.5, 0.5, 0.5]}
-        size={[0.4, 0.1, 0.1]}
-        {...props}
-      ></Box>
-    </Interactive>
-  );
-}
-
-export function App() {
-  return (
-    <>
+export default function Page() {
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: false,
+      },
+      watchPosition: true,
+      userDecisionTimeout: 5000,
+    });
+  return coords ? (
+    <div className="w-screen h-screen overflow-hidden">
       <ARButton />
-      <Canvas className="bg-white">
-        <XR referenceSpace="local">
-          <ambientLight />
-          <pointLight position={[10, 10, 10]} />
-          <Button position={[0, 0.1, -0.2]} />
-          <Controllers />
-        </XR>
-      </Canvas>
-    </>
-  );
-}
+      <Map
+        initialViewState={{
+          latitude: coords.latitude,
+          longitude: coords.longitude,
 
-export default App;
+          zoom: 10,
+        }}
+        mapboxAccessToken={pk}
+        mapStyle="mapbox://styles/mapbox/streets-v9"
+      >
+        <Marker
+          key={`position`}
+          longitude={coords.longitude}
+          latitude={coords.latitude}
+          anchor="bottom"
+        />
+      </Map>
+    </div>
+  ) : null;
+}
