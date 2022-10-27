@@ -3,6 +3,7 @@ import { useGeolocated } from "react-geolocated";
 import { ARButton } from "@react-three/xr";
 import { toast } from "react-toastify";
 import getDistance from "geolib/es/getDistance";
+import Link from "next/link";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -64,13 +65,15 @@ export default function Page() {
         </Marker>
       </Map>
       <div className="absolute px-8 py-2 h-16 items-center md:bottom-0 bottom-14   w-screen flex justify-end">
-        <div className=" p-2 w-full flex items-center justify-center rounded bg-black bg-opacity-70  container mx-auto h-full ">
-          {distance} meters away
-          {/* <img
+        <Link href={"/detect"}>
+          <div className=" p-2 w-full flex items-center justify-center rounded bg-black bg-opacity-70  container mx-auto h-full ">
+            {distance} meters away
+            {/* <img
             className="h-full"
             src="https://s2.svgbox.net/hero-outline.svg?ic=camera&color=aaa"
           /> */}
-        </div>
+          </div>
+        </Link>
       </div>
     </div>
   ) : null;
