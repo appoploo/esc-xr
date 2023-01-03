@@ -45,19 +45,23 @@ export default function Detect() {
       ).filter((e) => e.class === "bottle");
       if (preds.length > 0) {
         clearInterval(interval);
-        router.push("/ar").then(() => {
-          toast.success(
-            "ouuu fantastika mpravo OUUUUUUUUUUUUUUUUUUUUUUUUUUUUU"
-          );
-        });
+
+        toast.success(
+          "CLICK HERE ouuu fantastika mpravo OUUUUUUUUUUUUUUUUUUUUUUUUUUUUU",
+          {
+            onClick: () => {
+              router.push("/ar");
+            },
+          }
+        );
       }
     }, 10);
   };
-  const [preds, setPreds] = useState<cocoSsd.DetectedObject[]>([]);
   useEffect(() => {
     getVideo();
     init();
   }, []);
+
   return (
     <div className="relative w-screen h-screen">
       <video

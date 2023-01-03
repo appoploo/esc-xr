@@ -1,51 +1,50 @@
-import React, { Suspense, useState } from "react";
-import { Interactive, XR, ARButton, Controllers } from "@react-three/xr";
-import { Canvas } from "@react-three/fiber";
+import React, { Suspense, useRef, useState } from "react";
+import { XR, XRButton, useHitTest } from "@react-three/xr";
 
-function Box({ color, size, scale, children, ...rest }: any) {
+import { useLoader } from "@react-three/fiber";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Canvas, MeshProps, useFrame } from "@react-three/fiber";
+import { Mesh } from "three";
+import { Box, useFBX } from "@react-three/drei";
+
+function Reticle({ color, size, scale, children, ...rest }: any) {
+  const ref = useRef<Mesh>(null);
+  const gltf = useLoader(GLTFLoader, "/3d/reticle.gltf");
+  useHitTest((hit) => {
+    if (!ref.current) return;
+    hit.decompose(
+      ref.current.position,
+      // @ts-ignore
+      ref.current.rotation,
+      ref.current.scale
+    );
+  });
   return (
-    <mesh scale={scale} {...rest}>
-      <boxBufferGeometry args={size} />
-      <meshPhongMaterial color={color} />
-      {children}
-    </mesh>
-  );
-}
-
-function Button(props: any) {
-  const [hover, setHover] = useState(false);
-  const [color, setColor] = useState<any>("blue");
-
-  const onSelect = () => {
-    setColor((Math.random() * 0xffffff) | 0);
-  };
-
-  return (
-    <Interactive
-      onHover={() => setHover(true)}
-      onBlur={() => setHover(false)}
-      onSelect={onSelect}
-    >
-      <Box
-        color={color}
-        scale={hover ? [0.6, 0.6, 0.6] : [0.5, 0.5, 0.5]}
-        size={[0.4, 0.1, 0.1]}
-        {...props}
-      ></Box>
-    </Interactive>
+    <Suspense fallback={null}>
+      <primitive ref={ref} object={gltf.scene} />
+    </Suspense>
   );
 }
 
 export function App() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const [pos, setPos] = useState(-1);
   return (
     <>
-      <ARButton />
-      <Canvas>
-        <XR referenceSpace="local">
-          <ambientLight />
-          <pointLight position={[10, 10, 10]} />
-          <Button position={[0, 0.1, -0.2]} />
-          <Controllers />
+      <h1>asdas</h1>
+      <XRButton
+        className="fixed z-50 bottom-0 w-full flex justify-center"
+        mode={"AR"}
+        sessionInit={{
+          requiredFeatures: ["local-floor", "hit-test"],
+        }}
+        onError={(error) => console.log(error)}
+      ></XRButton>
+
+      <Canvas ref={ref} className="h-screen w-screen border">
+        <XR>
+          <Reticle />
+          <ambientLight intensity={0.5} />
         </XR>
       </Canvas>
     </>
