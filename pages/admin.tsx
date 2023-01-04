@@ -1,11 +1,33 @@
 import Map, { Marker } from "react-map-gl";
 import { useGeolocated } from "react-geolocated";
-import { ARButton } from "@react-three/xr";
 import { toast } from "react-toastify";
 import getDistance from "geolib/es/getDistance";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import clsx from "clsx";
+import Image from "next/image";
+import { useRef } from "react";
+import { EditModal } from "../components/EditModal";
+
+const points = [
+  {
+    latitude: 37.9956955,
+    longitude: 23.6746348,
+    name: "Athens",
+    miniGame: "Collect",
+  },
+  {
+    latitude: 37.9956355,
+    longitude: 23.6741348,
+    name: "Athens",
+    miniGame: "Collect",
+  },
+  {
+    latitude: 37.9926355,
+    longitude: 23.6941348,
+    name: "Athens",
+    miniGame: "Collect",
+  },
+];
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -41,113 +63,131 @@ export default function Page() {
       longitude: 23.6746348,
     }
   );
-  const minIGames = [0, 1, 2, 3, 4, 5, 6];
   const router = useRouter();
   const { lng, lat, activeRow } = router.query;
+  const ref = useRef<HTMLInputElement>(null);
+  const closeModal = () => {
+    if (!ref.current) return;
+    ref.current.checked = false;
+  };
+
   return (
-    <div className="w-screen relative h-screen overflow-hidden grid grid-cols-[1fr_1fr]">
-      <div className="border p-4">
-        <div className="overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>MiniGame</th>
-                <th>Assets</th>
-              </tr>
-            </thead>
-            <tbody>
-              {minIGames.map((_, key) => (
-                <tr
-                  role={"button"}
-                  key={key}
-                  onClick={() => {
-                    router.replace(`?activeRow=${key}`);
-                  }}
-                  className={clsx({
-                    active: Number(activeRow) === key,
-                  })}
-                >
-                  <td>
-                    <input type="text" className="input" />
-                  </td>
-                  <td>
-                    <select className="select ">
-                      <option disabled selected>
-                        Type of miniGame
-                      </option>
-                      <option>Star Wars</option>
-                      <option>Harry Potter</option>
-                      <option>Lord of the Rings</option>
-                      <option>Planet of the Apes</option>
-                      <option>Star Trek</option>
-                    </select>
-                  </td>
-                  <td>
-                    <div className="flex gap-4 flex-wrap">
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                      <div className="badge">neutral</div>
-                    </div>
-                  </td>
+    <>
+      <input
+        ref={ref}
+        type="checkbox"
+        checked={ref.current?.checked}
+        className="modal-toggle"
+      />
+
+      <EditModal onCancel={closeModal} onSave={closeModal} />
+      <div className="w-screen relative h-screen overflow-hidden grid grid-cols-[1fr_1fr]">
+        <div className="border p-4 max-h-screen overflow-auto">
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>MiniGame</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {points.map((obj, key) => (
+                  <tr
+                    role={"button"}
+                    key={key}
+                    onClick={() => {
+                      router.replace(
+                        `?activeRow=${key}&lat${obj.latitude}&lng=${obj.longitude}`
+                      );
+                    }}
+                    className={clsx({
+                      active: Number(activeRow) === key,
+                    })}
+                  >
+                    <td className="flex gap-x-2 items-end">
+                      <Image
+                        width={32}
+                        height={32}
+                        loader={({ src }) => src}
+                        src="/images/female.png"
+                        alt="preview"
+                      />
+
+                      <div className="font-bold">{obj.name}</div>
+                    </td>
+                    <td>
+                      <div className="font-bold">{obj.miniGame}</div>
+                    </td>
+
+                    <td>
+                      <div className="flex gap-x-4">
+                        <button
+                          onClick={() => {
+                            if (!ref.current) return;
+                            ref.current.checked = true;
+                          }}
+                        >
+                          ✏️
+                        </button>
+                        <button>🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      <Map
-        onClick={(evt) => {
-          router.replace({
-            pathname: "/admin",
-            query: {
-              ...evt.lngLat,
+        <Map
+          onClick={(evt) => {
+            router.replace({
+              pathname: "/admin",
+              query: {
+                ...evt.lngLat,
+              },
+            });
+          }}
+          viewState={{
+            height: 100,
+            width: 100,
+            bearing: 0,
+            pitch: 0,
+            padding: {
+              top: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
             },
-          });
-        }}
-        attributionControl={false}
-        initialViewState={{
-          latitude: 37.9956955,
-          longitude: 23.6746348,
-          zoom: 16,
-        }}
-        mapboxAccessToken={pk}
-        mapStyle="mapbox://styles/mapbox/streets-v9"
-      >
-        {lat && lng && (
-          <Marker
-            latitude={parseFloat(lat as string)}
-            longitude={parseFloat(lng as string)}
-            anchor="top"
-          >
-            {/* <img
+            latitude: Number(lat ?? 37.9956955),
+            longitude: Number(lng ?? 23.6746348),
+            zoom: 14,
+          }}
+          initialViewState={{
+            latitude: 37.9956955,
+            longitude: 23.6746348,
+            zoom: 16,
+          }}
+          mapboxAccessToken={pk}
+          mapStyle="mapbox://styles/mapbox/streets-v9"
+        >
+          {points.map((obj, idx) => (
+            <Marker
+              key={idx}
+              latitude={obj.latitude}
+              longitude={obj.longitude}
+              anchor="top"
+            >
+              {/* <img
             className="h-20 border-2  bg-black  border-yellow-400  shadow-xl w-20 rounded-full"
             src="/images/male.png"
             alt=""
           /> */}
-          </Marker>
-        )}
-      </Map>
-    </div>
+            </Marker>
+          ))}
+        </Map>
+      </div>
+    </>
   );
 }
