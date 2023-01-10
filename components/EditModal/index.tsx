@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { clsx } from "clsx";
 
 const images = [
   {
@@ -10,7 +11,7 @@ const images = [
 ];
 
 export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
-  const [selectedImage, setSelectedImage] = useState();
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   return (
     <>
       <div className="modal border ">
@@ -50,11 +51,25 @@ export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
           <div className="divider"></div>
           <div className="grid grid-cols-4 gap-2 ">
             {images.map((image, idx) => (
-              <img
-                onClick={() => setSelectedImage(image.src)}
-                key={idx}
-                src={image.src}
-              ></img>
+              <picture key={idx}>
+                <img
+                  onClick={() => {
+                    if (selectedImages.includes(image.src)) {
+                      setSelectedImages(
+                        selectedImages.filter((img) => img !== image.src)
+                      );
+                    } else {
+                      setSelectedImages([...selectedImages, image.src]);
+                    }
+                  }}
+                  src={image.src}
+                  className={clsx({
+                    "border-4 border-green-700 border-dashed":
+                      selectedImages.includes(image.src),
+                  })}
+                  alt="image"
+                />
+              </picture>
             ))}
           </div>
           <div className="divider"></div>

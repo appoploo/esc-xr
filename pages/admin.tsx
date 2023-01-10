@@ -27,6 +27,96 @@ const points = [
     name: "Athens",
     miniGame: "Collect",
   },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
+  // {
+  //   latitude: 37.9926355,
+  //   longitude: 23.6941348,
+  //   name: "Athens",
+  //   miniGame: "Collect",
+  // },
 ];
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
@@ -83,7 +173,19 @@ export default function Page() {
       <EditModal onCancel={closeModal} onSave={closeModal} />
       <div className="w-screen relative h-screen overflow-hidden grid grid-cols-[1fr_1fr]">
         <div className="border p-4 max-h-screen overflow-auto">
-          <div className="overflow-x-auto">
+          <div className="overflow-y-auto">
+            <div className="flex justify-end items-end my-4">
+              <button
+                onClick={() => {
+                  if (!ref.current) return;
+                  ref.current.checked = true;
+                }}
+                className="btn bg-violet-500 hover:bg-violet-500 "
+              >
+                New location
+              </button>
+            </div>
+
             <table className="table w-full">
               <thead>
                 <tr>
