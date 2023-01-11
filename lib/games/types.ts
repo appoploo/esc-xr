@@ -1,7 +1,7 @@
 export type Games = {
-  name: string | undefined;
-  latitude: number | undefined;
-  longitude: number | undefined;
-  type: "detect" | "collect" | undefined;
-  assets: string[] | undefined;
+  name?: string;
+  latitude?: number;
+  longitude?: number;
+  type?: "detect" | "collect";
+  assets?: string[];
 };

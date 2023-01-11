@@ -5,119 +5,9 @@ import getDistance from "geolib/es/getDistance";
 import { useRouter } from "next/router";
 import clsx from "clsx";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { EditModal } from "../components/EditModal";
-
-const points = [
-  {
-    latitude: 37.9956955,
-    longitude: 23.6746348,
-    name: "Athens",
-    type: "Collect",
-  },
-  {
-    latitude: 37.9956355,
-    longitude: 23.6741348,
-    name: "Athens",
-    type: "Collect",
-  },
-  {
-    latitude: 37.9926355,
-    longitude: 23.6941348,
-    name: "Athens",
-    type: "Collect",
-  },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-  // {
-  //   latitude: 37.9926355,
-  //   longitude: 23.6941348,
-  //   name: "Athens",
-  //   type: "Collect",
-  // },
-];
+import { Games, useGames } from "../lib/games";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -161,6 +51,28 @@ export default function Page() {
     ref.current.checked = false;
   };
 
+  const { data: games, isLoading } = useGames();
+  const [locations, setLocations] = useState<Games[]>([
+    {
+      name: "Athens",
+      latitude: 37.9956955,
+      longitude: 23.6746348,
+      type: "collect",
+    },
+    {
+      name: "Athens",
+      latitude: 37.9956355,
+      longitude: 23.6741348,
+      type: "collect",
+    },
+    {
+      name: "Athens",
+      latitude: 37.9926355,
+      longitude: 23.6941348,
+      type: "collect",
+    },
+  ]);
+
   return (
     <>
       <input
@@ -170,7 +82,13 @@ export default function Page() {
         className="modal-toggle"
       />
 
-      <EditModal onCancel={closeModal} onSave={closeModal} />
+      <EditModal
+        onCancel={closeModal}
+        onSave={(game: Games) => {
+          setLocations([...locations, game]);
+          closeModal();
+        }}
+      />
       <div className="w-screen relative h-screen overflow-hidden grid grid-cols-[1fr_1fr]">
         <div className="border p-4 max-h-screen overflow-auto">
           <div className="overflow-y-auto">
@@ -195,13 +113,13 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
-                {points.map((obj, key) => (
+                {locations.map((location, key) => (
                   <tr
                     role={"button"}
                     key={key}
                     onClick={() => {
                       router.replace(
-                        `?activeRow=${key}&lat${obj.latitude}&lng=${obj.longitude}`
+                        `?activeRow=${key}&name=${location.name}&lat=${location.latitude}&lng=${location.longitude}`
                       );
                     }}
                     className={clsx({
@@ -217,10 +135,10 @@ export default function Page() {
                         alt="preview"
                       />
 
-                      <div className="font-bold">{obj.name}</div>
+                      <div className="font-bold">{location.name}</div>
                     </td>
                     <td>
-                      <div className="font-bold">{obj.type}</div>
+                      <div className="font-bold">{location.type}</div>
                     </td>
 
                     <td>
@@ -233,7 +151,15 @@ export default function Page() {
                         >
                           ✏️
                         </button>
-                        <button>🗑️</button>
+                        <button
+                          onClick={() => {
+                            setLocations(
+                              locations.filter((obj, idx) => idx !== key)
+                            );
+                          }}
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -274,7 +200,7 @@ export default function Page() {
           mapboxAccessToken={pk}
           mapStyle="mapbox://styles/mapbox/streets-v9"
         >
-          {points.map((obj, idx) => (
+          {locations.map((obj, idx) => (
             <Marker
               key={idx}
               latitude={obj.latitude}

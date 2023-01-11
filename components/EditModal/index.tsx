@@ -13,8 +13,10 @@ const images = [
   },
 ];
 
-export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
-  const [locations, setLocations] = useState<Games[]>([]);
+export function EditModal(props: {
+  onCancel: () => void;
+  onSave: (game: Games) => void;
+}) {
   const [name, setName] = useState<string>("");
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
@@ -99,18 +101,15 @@ export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
               Cancel
             </button>
             <button
-              onClick={() =>
-                setLocations([
-                  ...locations,
-                  {
-                    name: name,
-                    latitude: latitude,
-                    longitude: longitude,
-                    type: selectedOption,
-                    assets: selectedImages,
-                  },
-                ])
-              }
+              onClick={() => {
+                props.onSave({
+                  name,
+                  latitude,
+                  longitude,
+                  type: selectedOption,
+                  assets: selectedImages,
+                });
+              }}
               className="btn btn-sm"
             >
               Save
