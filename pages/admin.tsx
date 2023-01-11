@@ -13,109 +13,109 @@ const points = [
     latitude: 37.9956955,
     longitude: 23.6746348,
     name: "Athens",
-    miniGame: "Collect",
+    type: "Collect",
   },
   {
     latitude: 37.9956355,
     longitude: 23.6741348,
     name: "Athens",
-    miniGame: "Collect",
+    type: "Collect",
   },
   {
     latitude: 37.9926355,
     longitude: 23.6941348,
     name: "Athens",
-    miniGame: "Collect",
+    type: "Collect",
   },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
   // {
   //   latitude: 37.9926355,
   //   longitude: 23.6941348,
   //   name: "Athens",
-  //   miniGame: "Collect",
+  //   type: "Collect",
   // },
 ];
 
@@ -190,7 +190,7 @@ export default function Page() {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>MiniGame</th>
+                  <th>Type of game</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -220,7 +220,7 @@ export default function Page() {
                       <div className="font-bold">{obj.name}</div>
                     </td>
                     <td>
-                      <div className="font-bold">{obj.miniGame}</div>
+                      <div className="font-bold">{obj.type}</div>
                     </td>
 
                     <td>

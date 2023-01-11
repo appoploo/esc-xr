@@ -1,5 +1,8 @@
 import { useRef, useState } from "react";
 import { clsx } from "clsx";
+import { Games } from "../../lib/games";
+import { constants } from "buffer";
+import { OnChangeCallback } from "react-toastify/dist/core";
 
 const images = [
   {
@@ -11,6 +14,13 @@ const images = [
 ];
 
 export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
+  const [locations, setLocations] = useState<Games[]>([]);
+  const [name, setName] = useState<string>("");
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
+  const [selectedOption, setSelectedOption] = useState<
+    "detect" | "collect" | undefined
+  >(undefined);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   return (
     <>
@@ -20,6 +30,7 @@ export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
             <span className="label-text">Name</span>
           </label>
           <input
+            onChange={(evt) => setName(evt.currentTarget.value)}
             type="text"
             placeholder="Type here"
             className="input input-bordered w-full"
@@ -28,25 +39,35 @@ export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
             <span className="label-text">Latitude</span>
           </label>
           <input
+            onChange={(evt) => setLatitude(Number(evt.currentTarget.value))}
             type="text"
             placeholder="Type here"
             className="input input-bordered w-full"
           />
           <label className="label">
-            <span className="label-text">Longtitude</span>
+            <span className="label-text">Longitude</span>
           </label>
           <input
+            onChange={(evt) => setLongitude(Number(evt.currentTarget.value))}
             type="text"
             placeholder="Type here"
             className="input input-bordered w-full"
           />
           <br /> <br />
-          <select className="select select-bordered w-full ">
+          <select
+            className="select select-bordered w-full "
+            value={selectedOption}
+            onChange={(evt) =>
+              setSelectedOption(
+                evt.currentTarget.value as "detect" | "collect" | undefined
+              )
+            }
+          >
             <option disabled selected>
               Type of game
             </option>
-            <option>Detect</option>
-            <option>Collect</option>
+            <option value="detect">Detect</option>
+            <option value="collect">Collect</option>
           </select>
           <div className="divider"></div>
           <div className="grid grid-cols-4 gap-2 ">
@@ -77,7 +98,21 @@ export function EditModal(props: { onCancel: () => void; onSave: () => void }) {
             <button onClick={props.onCancel} className="btn btn-sm">
               Cancel
             </button>
-            <button onClick={props.onSave} className="btn btn-sm">
+            <button
+              onClick={() =>
+                setLocations([
+                  ...locations,
+                  {
+                    name: name,
+                    latitude: latitude,
+                    longitude: longitude,
+                    type: selectedOption,
+                    assets: selectedImages,
+                  },
+                ])
+              }
+              className="btn btn-sm"
+            >
               Save
             </button>
           </div>
