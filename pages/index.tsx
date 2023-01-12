@@ -8,6 +8,7 @@ import { formatDistance } from "../lib/utils";
 import { useT } from "../Hooks/useT";
 import clsx from "clsx";
 import { useRouter } from "next/router";
+import { LocationInfoWindow } from "../components/LocationInfoWindow";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -91,19 +92,7 @@ export default function Page() {
 
             <div className="border-b mt-2 border-black w-full border-dashed"></div>
           </div>
-          <div className="gap-4 flex">
-            {games.map((game, idx) => (
-              <Link
-                key={game._id}
-                className={clsx("btn", {
-                  "btn-primary": game._id === router.query.quest,
-                })}
-                href={`?quest=${game._id}`}
-              >
-                {game.name}
-              </Link>
-            ))}
-          </div>
+          <LocationInfoWindow />
         </div>
       </div>
     </div>
