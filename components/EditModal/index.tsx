@@ -1,8 +1,6 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { clsx } from "clsx";
-import { Games } from "../../lib/games";
-import { constants } from "buffer";
-import { OnChangeCallback } from "react-toastify/dist/core";
+import axios from "axios";
 
 const images = [
   {
@@ -13,10 +11,7 @@ const images = [
   },
 ];
 
-export function EditModal(props: {
-  onCancel: () => void;
-  onSave: (game: Games) => void;
-}) {
+export function EditModal(props: { onClose: () => void }) {
   const [name, setName] = useState<string>("");
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
@@ -97,18 +92,17 @@ export function EditModal(props: {
           </div>
           <div className="divider"></div>
           <div className="modal-action">
-            <button onClick={props.onCancel} className="btn btn-sm">
+            <button onClick={props.onClose} className="btn btn-sm">
               Cancel
             </button>
             <button
               onClick={() => {
-                props.onSave({
-                  name,
-                  latitude,
-                  longitude,
-                  type: selectedOption,
-                  assets: selectedImages,
-                });
+                // TODO: Save to database
+                // code here
+                // TODO: Save to database
+
+                // Close modal
+                props.onClose();
               }}
               className="btn btn-sm"
             >

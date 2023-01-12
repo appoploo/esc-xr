@@ -7,7 +7,8 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { EditModal } from "../components/EditModal";
-import { Games, useGames } from "../lib/games";
+import { useGames } from "../lib/games/queries";
+import { Game } from "../lib/games/types";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -48,13 +49,7 @@ export default function Page() {
         className="modal-toggle"
       />
 
-      <EditModal
-        onCancel={closeModal}
-        onSave={(game: Games) => {
-          // setLocations([...locations, game]);
-          // closeModal();
-        }}
-      />
+      <EditModal onClose={closeModal} />
       <div className="w-screen relative h-screen overflow-hidden grid grid-cols-[1fr_1fr]">
         <div className="border p-4 max-h-screen overflow-auto">
           <div className="overflow-y-auto">

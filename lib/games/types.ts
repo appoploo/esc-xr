@@ -1,4 +1,5 @@
-export type Games = {
+export type Game = {
+  _id?: string;
   name?: string;
   latitude?: number;
   longitude?: number;
