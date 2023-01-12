@@ -7,7 +7,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { EditModal } from "../components/EditModal";
-import { useGames, removeGame } from "../lib/games/queries";
+import { useGames, deleteGame } from "../lib/games/queries";
 import { Game } from "../lib/games/types";
 import useMutation from "../Hooks/useMutation";
 import axios from "axios";
@@ -41,15 +41,11 @@ export default function Page() {
   };
 
   const { data: games, isLoading } = useGames();
-  const [_removeGame, { loading }] = useMutation(
-    removeGame,
-    ["/api/games/_id"],
-    {
-      onSuccess: () => {
-        toast.success("deleted game");
-      },
-    }
-  );
+  const [removeGame, { loading }] = useMutation(deleteGame, ["/api/games"], {
+    onSuccess: () => {
+      toast.success("deleted game");
+    },
+  });
 
   return (
     <>
@@ -125,8 +121,7 @@ export default function Page() {
                         </button>
                         <button
                           onClick={() => {
-                            axios.get("/api/games/");
-                            //     _removeGame(`${game._id}`);
+                            removeGame(`${game._id}`);
                           }}
                         >
                           🗑️

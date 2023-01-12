@@ -20,6 +20,6 @@ export async function updateGame(game: Game) {
   await axios.put(`/api/games/${game._id}`, game);
 }
 
-export async function removeGame(_id: string) {
+export async function deleteGame(_id: string) {
   await axios.delete(`/api/games/${_id}`);
 }

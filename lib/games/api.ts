@@ -32,8 +32,8 @@ export async function getGames(req: NextApiRequest, res: NextApiResponse) {
 
 export async function deleteGame(req: NextApiRequest, res: NextApiResponse) {
   const db = await myDb();
-  await db
+  const id = await db
     .collection("xrgame")
-    .deleteOne({ __id: new ObjectId(`${req.query.id}`) });
+    .deleteOne({ _id: new ObjectId(`${req.query.id}`) });
   return res.status(204).send("deleted");
 }
