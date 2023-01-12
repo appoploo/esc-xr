@@ -7,8 +7,10 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { EditModal } from "../components/EditModal";
-import { useGames } from "../lib/games/queries";
+import { useGames, removeGame } from "../lib/games/queries";
 import { Game } from "../lib/games/types";
+import useMutation from "../Hooks/useMutation";
+import axios from "axios";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -39,6 +41,15 @@ export default function Page() {
   };
 
   const { data: games, isLoading } = useGames();
+  const [_removeGame, { loading }] = useMutation(
+    removeGame,
+    ["/api/games/_id"],
+    {
+      onSuccess: () => {
+        toast.success("deleted game");
+      },
+    }
+  );
 
   return (
     <>
@@ -74,13 +85,13 @@ export default function Page() {
                 </tr>
               </thead>
               <tbody>
-                {games.map((location, key) => (
+                {games.map((game: Game, key) => (
                   <tr
                     role={"button"}
                     key={key}
                     onClick={() => {
                       router.replace(
-                        `?activeRow=${key}&name=${location.name}&lat=${location.latitude}&lng=${location.longitude}`
+                        `?activeRow=${key}&name=${game.name}&lat=${game.latitude}&lng=${game.longitude}`
                       );
                     }}
                     className={clsx({
@@ -96,10 +107,10 @@ export default function Page() {
                         alt="preview"
                       />
 
-                      <div className="font-bold">{location.name}</div>
+                      <div className="font-bold">{game.name}</div>
                     </td>
                     <td>
-                      <div className="font-bold">{location.type}</div>
+                      <div className="font-bold">{game.type}</div>
                     </td>
 
                     <td>
@@ -112,7 +123,14 @@ export default function Page() {
                         >
                           ✏️
                         </button>
-                        <button onClick={() => {}}>🗑️</button>
+                        <button
+                          onClick={() => {
+                            axios.get("/api/games/");
+                            //     _removeGame(`${game._id}`);
+                          }}
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </td>
                   </tr>

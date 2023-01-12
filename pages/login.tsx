@@ -12,11 +12,14 @@ export default function Login() {
 
   return (
     <div className="bg-black w-screen h-screen">
-      <img
-        src="/images/start_map.png"
-        className="z-0 absolute w-screen h-screen object-contain"
-        alt=""
-      />
+      <picture>
+        <img
+          src="/images/start_map.png"
+          className="z-0 absolute w-screen h-screen object-contain"
+          alt="start"
+        />
+      </picture>
+
       <section className="h-screen z-50 absolute flex items-center  justify-center  w-screen overflow-hidden">
         <select
           value={locale}

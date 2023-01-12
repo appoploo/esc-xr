@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { clsx } from "clsx";
-import axios from "axios";
+import { createGame } from "../../lib/games/queries";
+import useMutation from "../../Hooks/useMutation";
+import { toast } from "react-toastify";
 
 const images = [
   {
@@ -10,6 +12,8 @@ const images = [
     src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxXnC3fwMwkbIt3ejGRIw3NmbDyUtgS5g2jA&usqp=CAU",
   },
 ];
+const y = [1, 2];
+const [first, second] = y;
 
 export function EditModal(props: { onClose: () => void }) {
   const [name, setName] = useState<string>("");
@@ -19,6 +23,14 @@ export function EditModal(props: { onClose: () => void }) {
     "detect" | "collect" | undefined
   >(undefined);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+
+  const [newGame, { loading }] = useMutation(createGame, ["/api/games"], {
+    onSuccess: () => {
+      toast.success("created game");
+      props.onClose();
+    },
+  });
+
   return (
     <>
       <div className="modal border ">
@@ -97,12 +109,13 @@ export function EditModal(props: { onClose: () => void }) {
             </button>
             <button
               onClick={() => {
-                // TODO: Save to database
-                // code here
-                // TODO: Save to database
-
-                // Close modal
-                props.onClose();
+                newGame({
+                  name,
+                  latitude,
+                  longitude,
+                  type: selectedOption,
+                  assets: selectedImages,
+                });
               }}
               className="btn btn-sm"
             >
