@@ -21,6 +21,7 @@ export default function Page() {
     //     }
     //   ),
 
+    // aaaa
     onError: (error) =>
       toast.error("please activate GPS  in order to continue", {
         position: "bottom-center",

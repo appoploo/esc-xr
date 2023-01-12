@@ -5,29 +5,9 @@ import getDistance from "geolib/es/getDistance";
 import { useRouter } from "next/router";
 import clsx from "clsx";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { EditModal } from "../components/EditModal";
-
-const points = [
-  {
-    latitude: 37.9956955,
-    longitude: 23.6746348,
-    name: "Athens",
-    miniGame: "Collect",
-  },
-  {
-    latitude: 37.9956355,
-    longitude: 23.6741348,
-    name: "Athens",
-    miniGame: "Collect",
-  },
-  {
-    latitude: 37.9926355,
-    longitude: 23.6941348,
-    name: "Athens",
-    miniGame: "Collect",
-  },
-];
+import { Games, useGames } from "../lib/games";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -36,15 +16,6 @@ export default function Page() {
     positionOptions: {
       enableHighAccuracy: false,
     },
-
-    // onSuccess: (coords) =>
-    //   toast.success(
-    //     `${coords.coords.latitude},    ${coords.coords.longitude}`,
-    //     {
-    //       position: "bottom-center",
-    //     }
-    //   ),
-
     onError: (error) =>
       toast.error("please activate GPS  in order to continue", {
         position: "bottom-center",
@@ -52,17 +23,12 @@ export default function Page() {
     watchPosition: true,
     userDecisionTimeout: 5000,
   });
+
   const { latitude, longitude } = coords ?? {
     latitude: 0,
     longitude: 0,
   };
-  const distance = getDistance(
-    { latitude, longitude },
-    {
-      latitude: 37.9956955,
-      longitude: 23.6746348,
-    }
-  );
+
   const router = useRouter();
   const { lng, lat, activeRow } = router.query;
   const ref = useRef<HTMLInputElement>(null);
@@ -70,6 +36,8 @@ export default function Page() {
     if (!ref.current) return;
     ref.current.checked = false;
   };
+
+  const { data: games, isLoading } = useGames();
 
   return (
     <>
@@ -80,26 +48,44 @@ export default function Page() {
         className="modal-toggle"
       />
 
-      <EditModal onCancel={closeModal} onSave={closeModal} />
+      <EditModal
+        onCancel={closeModal}
+        onSave={(game: Games) => {
+          // setLocations([...locations, game]);
+          // closeModal();
+        }}
+      />
       <div className="w-screen relative h-screen overflow-hidden grid grid-cols-[1fr_1fr]">
         <div className="border p-4 max-h-screen overflow-auto">
-          <div className="overflow-x-auto">
+          <div className="overflow-y-auto">
+            <div className="flex justify-end items-end my-4">
+              <button
+                onClick={() => {
+                  if (!ref.current) return;
+                  ref.current.checked = true;
+                }}
+                className="btn bg-violet-500 hover:bg-violet-500 "
+              >
+                New location
+              </button>
+            </div>
+
             <table className="table w-full">
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>MiniGame</th>
+                  <th>Type of game</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {points.map((obj, key) => (
+                {games.map((location, key) => (
                   <tr
                     role={"button"}
                     key={key}
                     onClick={() => {
                       router.replace(
-                        `?activeRow=${key}&lat${obj.latitude}&lng=${obj.longitude}`
+                        `?activeRow=${key}&name=${location.name}&lat=${location.latitude}&lng=${location.longitude}`
                       );
                     }}
                     className={clsx({
@@ -115,10 +101,10 @@ export default function Page() {
                         alt="preview"
                       />
 
-                      <div className="font-bold">{obj.name}</div>
+                      <div className="font-bold">{location.name}</div>
                     </td>
                     <td>
-                      <div className="font-bold">{obj.miniGame}</div>
+                      <div className="font-bold">{location.type}</div>
                     </td>
 
                     <td>
@@ -131,7 +117,7 @@ export default function Page() {
                         >
                           ✏️
                         </button>
-                        <button>🗑️</button>
+                        <button onClick={() => {}}>🗑️</button>
                       </div>
                     </td>
                   </tr>
@@ -172,7 +158,7 @@ export default function Page() {
           mapboxAccessToken={pk}
           mapStyle="mapbox://styles/mapbox/streets-v9"
         >
-          {points.map((obj, idx) => (
+          {games.map((obj, idx) => (
             <Marker
               key={idx}
               latitude={obj.latitude}
