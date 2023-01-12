@@ -28,6 +28,7 @@ type Key =
   | "ready_hard"
   | "ui_inventory"
   | "ui_time"
+  | "quest"
   | "ui_play_the_game"
   | "clock_text"
   | "reward_title"
@@ -115,8 +116,10 @@ to overcome the density of substance
 that then closed upon me,
 an obstacle visible to the light of heaven.`,
     clock_pp5_author: `Persephone, Zoe Karelli, 1973`,
+    quest: "Quest",
   },
   el: {
+    quest: "Quest",
     menu_play: "Παίξε",
     menu_select_level: "Επιλογή Επιπέδου",
     menu_achievements: "Επιτεύγματα",
