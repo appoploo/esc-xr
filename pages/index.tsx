@@ -8,7 +8,7 @@ import { formatDistance } from "../lib/utils";
 import { useT } from "../Hooks/useT";
 import clsx from "clsx";
 import { useRouter } from "next/router";
-import { LocationInfoWindow } from "../components/LocationInfoWindow";
+import { QuestCard } from "../components/QuestCard";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -92,7 +92,13 @@ export default function Page() {
 
             <div className="border-b mt-2 border-black w-full border-dashed"></div>
           </div>
-          <LocationInfoWindow />
+        </div>
+        <div className="absolute bottom-2 left-4  flex gap-x-4  w-screen pr-10 overflow-auto ">
+          {games.map((obj) => (
+            <Link key={obj._id} href={`?quest=${obj._id}`}>
+              <QuestCard {...obj} />
+            </Link>
+          ))}
         </div>
       </div>
     </div>
