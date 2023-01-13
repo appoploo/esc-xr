@@ -23,6 +23,7 @@ export function EditModal(props: { onClose: () => void }) {
     "detect" | "collect" | undefined
   >(undefined);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [textArea, setTextArea] = useState<string>("");
 
   const [newGame, { loading }] = useMutation(createGame, ["/api/games"], {
     onSuccess: () => {
@@ -78,6 +79,13 @@ export function EditModal(props: { onClose: () => void }) {
             <option value="detect">Detect</option>
             <option value="collect">Collect</option>
           </select>
+          <label className="label">
+            <span className="label-text">Description</span>
+          </label>
+          <textarea
+            onChange={(evt) => setTextArea(evt.currentTarget.value)}
+            className="textarea w-full border border-gray-500"
+          ></textarea>
           <div className="divider"></div>
           <div className="grid grid-cols-4 gap-2 ">
             {images.map((image, idx) => (
@@ -102,7 +110,6 @@ export function EditModal(props: { onClose: () => void }) {
               </picture>
             ))}
           </div>
-          <div className="divider"></div>
           <div className="modal-action">
             <button onClick={props.onClose} className="btn btn-sm">
               Cancel
@@ -114,6 +121,7 @@ export function EditModal(props: { onClose: () => void }) {
                   latitude,
                   longitude,
                   type: selectedOption,
+                  description: textArea,
                   assets: selectedImages,
                 });
               }}
