@@ -64,11 +64,12 @@ export default function Page() {
               <button
                 onClick={() => {
                   if (!ref.current) return;
+                  router.replace("/admin");
                   ref.current.checked = true;
                 }}
                 className="btn bg-violet-500 hover:bg-violet-500 "
               >
-                New location
+                New Game
               </button>
             </div>
 
@@ -87,11 +88,11 @@ export default function Page() {
                     key={key}
                     onClick={() => {
                       router.replace(
-                        `?activeRow=${key}&name=${game.name}&lat=${game.latitude}&lng=${game.longitude}`
+                        `?activeRow=${game._id}&name=${game.name}&lat=${game.latitude}&lng=${game.longitude}`
                       );
                     }}
                     className={clsx({
-                      active: Number(activeRow) === key,
+                      active: game._id === router.query.activeRow,
                     })}
                   >
                     <td className="flex gap-x-2 items-end">

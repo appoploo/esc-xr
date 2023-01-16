@@ -10,9 +10,10 @@ export async function createNewGame(req: NextApiRequest, res: NextApiResponse) {
 
 export async function updateGame(req: NextApiRequest, res: NextApiResponse) {
   const db = await myDb();
+  const { _id, ...rest } = req.body;
   const id = await db
     .collection("xrgame")
-    .updateOne({ __id: new ObjectId(`${req.query.id}`) }, { $set: req.body });
+    .updateOne({ _id: new ObjectId(`${req.query.id}`) }, { $set: rest });
   return res.status(201).json(id);
 }
 
@@ -20,7 +21,7 @@ export async function getGame(req: NextApiRequest, res: NextApiResponse) {
   const db = await myDb();
   const id = await db
     .collection("xrgame")
-    .findOne({ __id: new ObjectId(`${req.query.id}`) });
+    .findOne({ _id: new ObjectId(`${req.query.id}`) });
   return res.status(201).json(id);
 }
 

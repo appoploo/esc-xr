@@ -3,7 +3,7 @@ export type Game = {
   name?: string;
   latitude?: number;
   longitude?: number;
-  type?: "detect" | "collect";
+  type?: "detect" | "collect" | "none";
   description?: string;
   assets?: string[];
 };

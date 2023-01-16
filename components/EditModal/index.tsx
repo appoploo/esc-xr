@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { clsx } from "clsx";
-import { createGame } from "../../lib/games/queries";
+import { createGame, useGames, updateGame } from "../../lib/games/queries";
 import useMutation from "../../Hooks/useMutation";
 import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 const images = [
   {
@@ -15,22 +16,54 @@ const images = [
 const y = [1, 2];
 const [first, second] = y;
 
+//
+
 export function EditModal(props: { onClose: () => void }) {
   const [name, setName] = useState<string>("");
   const [latitude, setLatitude] = useState<number>(0);
   const [longitude, setLongitude] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<
-    "detect" | "collect" | undefined
-  >(undefined);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+    "detect" | "collect" | "none"
+  >("none");
   const [textArea, setTextArea] = useState<string>("");
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
-  const [newGame, { loading }] = useMutation(createGame, ["/api/games"], {
+  const [newGame] = useMutation(createGame, ["/api/games"], {
     onSuccess: () => {
       toast.success("created game");
       props.onClose();
     },
   });
+  const [editGame] = useMutation(updateGame, ["/api/games"], {
+    onSuccess: () => {
+      toast.success("changed game");
+      props.onClose();
+    },
+  });
+
+  const { data: games } = useGames();
+  const router = useRouter();
+  const activeRow = router.query.activeRow;
+  const selectedGame = games.find((g) => g._id === activeRow);
+
+  useEffect(() => {
+    const selectedGame = games.find((g) => g._id === activeRow);
+    if (selectedGame) {
+      setName(selectedGame?.name ?? "");
+      setLatitude(selectedGame?.latitude ?? 0);
+      setLongitude(selectedGame?.longitude ?? 0);
+      setTextArea(selectedGame?.description ?? "");
+      setSelectedOption(selectedGame?.type ?? "none");
+      setSelectedImages(selectedGame?.assets ?? []);
+    } else {
+      setName("");
+      setLatitude(0);
+      setLongitude(0);
+      setTextArea("");
+      setSelectedOption("none");
+      setSelectedImages([]);
+    }
+  }, [activeRow, games]);
 
   return (
     <>
@@ -40,6 +73,7 @@ export function EditModal(props: { onClose: () => void }) {
             <span className="label-text">Name</span>
           </label>
           <input
+            value={name}
             onChange={(evt) => setName(evt.currentTarget.value)}
             type="text"
             placeholder="Type here"
@@ -49,6 +83,7 @@ export function EditModal(props: { onClose: () => void }) {
             <span className="label-text">Latitude</span>
           </label>
           <input
+            value={+latitude}
             onChange={(evt) => setLatitude(Number(evt.currentTarget.value))}
             type="text"
             placeholder="Type here"
@@ -58,6 +93,7 @@ export function EditModal(props: { onClose: () => void }) {
             <span className="label-text">Longitude</span>
           </label>
           <input
+            value={+longitude}
             onChange={(evt) => setLongitude(Number(evt.currentTarget.value))}
             type="text"
             placeholder="Type here"
@@ -69,11 +105,11 @@ export function EditModal(props: { onClose: () => void }) {
             value={selectedOption}
             onChange={(evt) =>
               setSelectedOption(
-                evt.currentTarget.value as "detect" | "collect" | undefined
+                evt.currentTarget.value as "detect" | "collect" | "none"
               )
             }
           >
-            <option disabled selected>
+            <option value="none" disabled selected>
               Type of game
             </option>
             <option value="detect">Detect</option>
@@ -83,6 +119,7 @@ export function EditModal(props: { onClose: () => void }) {
             <span className="label-text">Description</span>
           </label>
           <textarea
+            value={textArea}
             onChange={(evt) => setTextArea(evt.currentTarget.value)}
             className="textarea w-full border border-gray-500"
           ></textarea>
@@ -116,14 +153,26 @@ export function EditModal(props: { onClose: () => void }) {
             </button>
             <button
               onClick={() => {
-                newGame({
-                  name,
-                  latitude,
-                  longitude,
-                  type: selectedOption,
-                  description: textArea,
-                  assets: selectedImages,
-                });
+                if (selectedGame) {
+                  editGame({
+                    _id: selectedGame._id,
+                    name,
+                    latitude,
+                    longitude,
+                    type: selectedOption,
+                    description: textArea,
+                    assets: selectedImages,
+                  });
+                } else {
+                  newGame({
+                    name,
+                    latitude,
+                    longitude,
+                    type: selectedOption,
+                    description: textArea,
+                    assets: selectedImages,
+                  });
+                }
               }}
               className="btn btn-sm"
             >
