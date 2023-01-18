@@ -36,12 +36,12 @@ export default function Page() {
     {
       latitude: activeQuest?.latitude ?? 0,
       longitude: activeQuest?.longitude ?? 0,
-    }
+    },
+    0.1
   );
-  const t = useT();
-  console.log(activeQuest);
+
   return (
-    <div className="w-screen relative h-screen overf">
+    <div className="w-screen relative h-screen ">
       <Map
         viewState={{
           pitch: 0,
@@ -73,11 +73,11 @@ export default function Page() {
           /> */}
         </Marker>
       </Map>
-      <div className="fixed top-0 left-0  px-8 py-2   w-screen h-screen   z-50 border">
-        <div className="absolute top-2    w-screen overflow-auto ">
+      <div className="fixed top-0 left-0  md:px-8 py-2   w-screen h-screen   z-50 ">
+        <div className="absolute top-2 w-screen  flex flex-col md:items-start items-center  ">
           <div
             style={{ transform: "skewX(-20deg)" }}
-            className="stroke bg-black pb-0 p-4 bg-opacity-30 text-white relative  drop-shadow-2xl text-4xl font-bold m-4 md:w-96 "
+            className="stroke bg-black pb-0 w-11/12 p-4 bg-opacity-30 text-white relative  drop-shadow-2xl text-4xl font-bold m-4 md:w-96 "
           >
             <h1
               style={{
@@ -91,12 +91,24 @@ export default function Page() {
             </h1>
 
             <div className="border-b mt-2 border-black w-full border-dashed"></div>
+            <Link
+              href={`/${activeQuest?.type ?? "detect"}`}
+              className={clsx(
+                "btn rounded-none  btn-square left-0 bottom-0 w-full",
+                {
+                  "animate-bounce ": distance < 50,
+                  hidden: distance > 50,
+                }
+              )}
+            >
+              {activeQuest?.type}
+            </Link>
           </div>
         </div>
         <div className="absolute bottom-2 left-4  flex gap-x-4  w-screen pr-10 overflow-auto ">
           {games.map((obj) => (
             <Link key={obj._id} href={`?quest=${obj._id}`}>
-              <QuestCard {...obj} />
+              <QuestCard distance={distance} {...obj} />
             </Link>
           ))}
         </div>

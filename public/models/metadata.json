@@ -3,13 +3,13 @@
     "tmVersion": "2.4.5",
     "packageVersion": "0.8.4-alpha2",
     "packageName": "@teachablemachine/image",
-    "timeStamp": "2022-10-26T14:49:47.679Z",
+    "timeStamp": "2023-01-18T11:16:43.334Z",
     "userMetadata": {},
     "modelName": "tm-my-image-model",
     "labels": [
-        "tolis",
-        "Potiri",
-        "koupa"
+        "Door",
+        "Phone",
+        "Coffe"
     ],
     "imageSize": 224
 }
