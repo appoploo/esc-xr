@@ -14,7 +14,9 @@ export default function Page() {
     const response = await fetch("/models/metadata.json");
     const metadata = await response.json();
     const labels = metadata.labels;
-    const camera = await tf.data.webcam(ref.current);
+    const camera = await tf.data.webcam(ref.current, {
+      facingMode: "environment",
+    });
     let int: NodeJS.Timer;
     int = setInterval(async () => {
       const img = await camera.capture();
