@@ -4,6 +4,7 @@ import { createGame, useGames, updateGame } from "../../lib/games/queries";
 import useMutation from "../../Hooks/useMutation";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { classes } from "../../lib/classes";
 
 const images = [
   {
@@ -26,6 +27,8 @@ export function EditModal(props: { onClose: () => void }) {
     "detect" | "collect" | "none"
   >("none");
   const [textArea, setTextArea] = useState<string>("");
+  const [radius, setRadius] = useState<number>(100);
+  const [detected, setDetected] = useState<string | undefined>(undefined);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
   const [newGame] = useMutation(createGame, ["/api/games"], {
@@ -55,6 +58,8 @@ export function EditModal(props: { onClose: () => void }) {
       setTextArea(selectedGame?.description ?? "");
       setSelectedOption(selectedGame?.type ?? "none");
       setSelectedImages(selectedGame?.assets ?? []);
+      setDetected(selectedGame?.detected);
+      setRadius(selectedGame?.radius ?? 100);
     } else {
       setName("");
       setLatitude(0);
@@ -62,6 +67,8 @@ export function EditModal(props: { onClose: () => void }) {
       setTextArea("");
       setSelectedOption("none");
       setSelectedImages([]);
+      setDetected(undefined);
+      setRadius(100);
     }
   }, [activeRow, games]);
 
@@ -99,15 +106,35 @@ export function EditModal(props: { onClose: () => void }) {
             placeholder="Type here"
             className="input input-bordered w-full"
           />
+          <br />
+          <br />
+          <label className="label-text" htmlFor="radius">
+            Radius {radius} meters
+          </label>
+          <input
+            min={0}
+            max={1300}
+            value={radius}
+            type="range"
+            name=""
+            className="range"
+            onChange={(evt) => {
+              setRadius(Number(evt.currentTarget.value));
+            }}
+            id=""
+          />
           <br /> <br />
           <select
             className="select select-bordered w-full "
             value={selectedOption}
-            onChange={(evt) =>
-              setSelectedOption(
-                evt.currentTarget.value as "detect" | "collect" | "none"
-              )
-            }
+            onChange={(evt) => {
+              const type = evt.currentTarget.value as
+                | "detect"
+                | "collect"
+                | "none";
+              setSelectedOption(type);
+              if (type === "collect") setDetected(undefined);
+            }}
           >
             <option value="none" disabled selected>
               Type of game
@@ -115,6 +142,26 @@ export function EditModal(props: { onClose: () => void }) {
             <option value="detect">Detect</option>
             <option value="collect">Collect</option>
           </select>
+          {selectedOption === "detect" && (
+            <>
+              <br />
+              <br />
+              <input
+                onChange={(evt) => setDetected(evt.currentTarget.value)}
+                value={detected ?? ""}
+                list="data"
+                className="input input-bordered w-full "
+                type="text"
+              />
+              <datalist id="data">
+                {classes.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </datalist>
+            </>
+          )}
           <label className="label">
             <span className="label-text">Description</span>
           </label>
@@ -124,29 +171,6 @@ export function EditModal(props: { onClose: () => void }) {
             className="textarea w-full border border-gray-500"
           ></textarea>
           <div className="divider"></div>
-          <div className="grid grid-cols-4 gap-2 ">
-            {images.map((image, idx) => (
-              <picture key={idx}>
-                <img
-                  onClick={() => {
-                    if (selectedImages.includes(image.src)) {
-                      setSelectedImages(
-                        selectedImages.filter((img) => img !== image.src)
-                      );
-                    } else {
-                      setSelectedImages([...selectedImages, image.src]);
-                    }
-                  }}
-                  src={image.src}
-                  className={clsx({
-                    "border-4 border-green-700 border-dashed":
-                      selectedImages.includes(image.src),
-                  })}
-                  alt="image"
-                />
-              </picture>
-            ))}
-          </div>
           <div className="modal-action">
             <button onClick={props.onClose} className="btn btn-sm">
               Cancel
@@ -162,6 +186,8 @@ export function EditModal(props: { onClose: () => void }) {
                     type: selectedOption,
                     description: textArea,
                     assets: selectedImages,
+                    detected,
+                    radius,
                   });
                 } else {
                   newGame({
@@ -171,6 +197,8 @@ export function EditModal(props: { onClose: () => void }) {
                     type: selectedOption,
                     description: textArea,
                     assets: selectedImages,
+                    detected,
+                    radius,
                   });
                 }
               }}

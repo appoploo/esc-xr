@@ -39,6 +39,7 @@ export default function Page() {
     },
     0.1
   );
+  console.log(activeQuest?.radius, distance);
 
   return (
     <div className="w-screen relative h-screen ">
@@ -65,13 +66,7 @@ export default function Page() {
           anchor="top"
           longitude={activeQuest?.longitude ?? 0}
           latitude={activeQuest?.latitude ?? 0}
-        >
-          {/* <img
-            className="h-20 border-2  bg-black  border-yellow-400  shadow-xl w-20 rounded-full"
-            src="/images/male.png"
-            alt=""
-          /> */}
-        </Marker>
+        ></Marker>
       </Map>
       <div className="fixed top-0 left-0  md:px-8 py-2   w-screen h-screen   z-50 ">
         <div className="absolute top-2 w-screen  flex flex-col md:items-start items-center  ">
@@ -92,12 +87,15 @@ export default function Page() {
 
             <div className="border-b mt-2 border-black w-full border-dashed"></div>
             <Link
-              href={`/${activeQuest?.type ?? "detect"}`}
+              href={`/${activeQuest?.type ?? "detect"}?quest=${
+                activeQuest?._id
+              }`}
               className={clsx(
                 "btn rounded-none  btn-square left-0 bottom-0 w-full",
                 {
-                  "animate-bounce ": distance < 50,
-                  hidden: distance > 50,
+                  "animate-bounce ":
+                    distance < Number(activeQuest?.radius ?? 25),
+                  hidden: distance > Number(activeQuest?.radius ?? 25),
                 }
               )}
             >

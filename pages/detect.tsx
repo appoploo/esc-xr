@@ -1,52 +1,87 @@
 import * as tf from "@tensorflow/tfjs";
 import { Tensor } from "@tensorflow/tfjs";
-import * as tfjsWasm from "@tensorflow/tfjs-backend-webgl";
-import { useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { useGames } from "../lib/games/queries";
 
 export default function Page() {
   useEffect(() => {
     loadModel();
   }, []);
 
-  const predict = async (model: tf.LayersModel) => {
+  const router = useRouter();
+  const { data: games } = useGames();
+  const activeQuest = games?.find((g) => g._id === router.query.quest);
+
+  function preprocess(imageTensor: tf.Tensor3D) {
+    const widthToHeight = imageTensor.shape[1] / imageTensor.shape[0];
+    let squareCrop;
+    if (widthToHeight > 1) {
+      const heightToWidth = imageTensor.shape[0] / imageTensor.shape[1];
+      const cropTop = (1 - heightToWidth) / 2;
+      const cropBottom = 1 - cropTop;
+      squareCrop = [[cropTop, 0, cropBottom, 1]];
+    } else {
+      const cropLeft = (1 - widthToHeight) / 2;
+      const cropRight = 1 - cropLeft;
+      squareCrop = [[0, cropLeft, 1, cropRight]];
+    }
+    // Expand image input dimensions to add a batch dimension of size 1.
+    const crop = tf.image.cropAndResize(
+      tf.expandDims(imageTensor) as Tensor<tf.Rank.R4>,
+      squareCrop,
+      [0],
+      [224, 224]
+    );
+    return crop.div(255);
+  }
+  const [detected, setDetected] = useState("Loading...");
+
+  const predict = async (model: tf.GraphModel<tf.io.IOHandler>) => {
     if (!ref.current) return;
-    const response = await fetch("/models/metadata.json");
-    const metadata = await response.json();
-    const labels = metadata.labels;
+
     const camera = await tf.data.webcam(ref.current, {
       facingMode: "environment",
     });
     let int: NodeJS.Timer;
     int = setInterval(async () => {
       const img = await camera.capture();
-      const processedImg = tf.image.resizeBilinear(img, [224, 224]);
-      const normalizedImg = tf
-        .scalar(255)
-        .sub(processedImg)
-        .div(tf.scalar(255));
-      const prediction = model.predict(normalizedImg.expandDims(0)) as Tensor;
-
-      const topK = await prediction.topk();
-      const classes = topK.indices.dataSync();
-      const scores = topK.values.dataSync();
-
-      console.log(`Predicted class: ${labels[+classes]} with scores ${scores}`);
-      console.log(int);
-      if (labels[+classes] === "Door") {
+      const preprocessed = preprocess(img);
+      const logits = model.predict(preprocessed) as tf.Tensor<tf.Rank.R2>;
+      const classIndex = await tf.argMax(tf.squeeze(logits)).data();
+      const metaData = model.metadata as {
+        classNames: string[];
+      };
+      const className = metaData.classNames[classIndex[0]];
+      setDetected(className);
+      if (activeQuest?.detected === className) {
+        toast.success(`You found ${className}!`);
         clearInterval(int);
-        toast.success("You found the door!");
       }
       img.dispose();
     }, 1000);
   };
+
   const loadModel = async () => {
     // tf load model weight and metadata
-    const model = await tf.loadLayersModel("/models/model.json");
+    const model = await tf.loadGraphModel(
+      "https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_small_100_224/classification/5/default/1",
+      { fromTFHub: true }
+    );
     if (model) predict(model);
   };
+
   const ref = useRef<HTMLVideoElement>(null);
   return (
-    <video width={224} height={224} ref={ref} className="h-screen w-screen " />
+    <div className="relative">
+      <video width={224} height={224} ref={ref} className="h-screen w-screen" />
+      <h1 className="fixed w-screen text-white flex justify-center top-0 p-4 bg-black bg-opacity-60 font-bold text-4xl">
+        Search for {activeQuest?.detected}
+      </h1>
+      <h1 className="fixed w-screen text-white flex justify-center bottom-0 p-4 bg-black bg-opacity-60 font-bold text-4xl">
+        i see {detected}...
+      </h1>
+    </div>
   );
 }

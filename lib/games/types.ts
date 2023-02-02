@@ -6,4 +6,6 @@ export type Game = {
   type?: "detect" | "collect" | "none";
   description?: string;
   assets?: string[];
+  detected?: string;
+  radius?: number;
 };
