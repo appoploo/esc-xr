@@ -1,9 +1,9 @@
-import myDb from "../../helpers/mongo";
-import { NextApiRequest, NextApiResponse } from "next";
-import * as yup from "yup";
-import { getErrors } from "../yupError";
 import bcrypt from "bcrypt";
 import { ObjectId } from "mongodb";
+import { NextApiRequest, NextApiResponse } from "next";
+import * as yup from "yup";
+import myDb from "../../helpers/mongo";
+import { getErrors } from "../yupError";
 const saltRounds = 10;
 
 let schema = yup.object().shape({
@@ -22,10 +22,16 @@ export async function createUser(req: NextApiRequest, res: NextApiResponse) {
     return err;
   });
   const err = getErrors(body);
-  if (err) return res.status(400).json(err);
+  if (err) return res.status(400).json({ msg: "password_does_not_match" });
   const { password, passwordConfirmation, ...rest } = body;
   const _password = await bcrypt.hash(password, saltRounds);
   const db = await myDb();
+  const alreadyExists = await db
+    .collection("users")
+    .findOne({ userName: body.userName });
+  if (alreadyExists)
+    return res.status(400).json({ msg: "username_already_exists" });
+
   const id = await db
     .collection("users")
     .insertOne({ ...rest, password: _password, test: true });
@@ -34,7 +40,7 @@ export async function createUser(req: NextApiRequest, res: NextApiResponse) {
     id: id.insertedId.toString(),
   };
   await req.session.save();
-  return res.writeHead(302, { Location: "/?newUser=true" }).end();
+  return res.json({});
 }
 
 let loginSchema = yup.object().shape({
@@ -54,8 +60,7 @@ export async function login(req: NextApiRequest, res: NextApiResponse) {
   const user = await db
     .collection("users")
     .findOne({ userName: body.userName });
-  if (!user)
-    return res.status(400).json({ msg: `password or username incorrect` });
+  if (!user) return res.status(400).json({ msg: `error` });
 
   const match = await bcrypt.compareSync(body?.password, user?.password);
   if (match && user?._id) {
@@ -66,11 +71,10 @@ export async function login(req: NextApiRequest, res: NextApiResponse) {
     await req.session.save();
     const location =
       req.headers.referer?.split("/")[3] === "en" ? "/en" : "/el";
-    return res
-      .writeHead(302, { Location: user?.admin ? "/admin" : location })
-      .end();
+
+    return res.json({ admin: user?.admin, location });
   } else {
-    return res.status(400).json({ msg: `password or username incorrect` });
+    return res.status(400).json({ msg: `error` });
   }
 }
 

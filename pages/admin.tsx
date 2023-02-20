@@ -1,16 +1,14 @@
-import Map, { Marker } from "react-map-gl";
-import { useGeolocated } from "react-geolocated";
-import { toast } from "react-toastify";
-import getDistance from "geolib/es/getDistance";
-import { useRouter } from "next/router";
 import clsx from "clsx";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRouter } from "next/router";
+import { useRef } from "react";
+import { useGeolocated } from "react-geolocated";
+import Map, { Marker } from "react-map-gl";
+import { toast } from "react-toastify";
 import { EditModal } from "../components/EditModal";
-import { useGames, deleteGame } from "../lib/games/queries";
-import { Game } from "../lib/games/types";
 import useMutation from "../Hooks/useMutation";
-import axios from "axios";
+import { deleteGame, useGames } from "../lib/games/queries";
+import { Game } from "../lib/games/types";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -57,10 +55,10 @@ export default function Page() {
       />
 
       <EditModal onClose={closeModal} />
-      <div className="w-screen relative h-screen overflow-hidden grid grid-cols-[1fr_1fr]">
-        <div className="border p-4 max-h-screen overflow-auto">
+      <div className="relative grid h-screen w-screen grid-cols-[1fr_1fr] overflow-hidden">
+        <div className="max-h-screen overflow-auto border p-4">
           <div className="overflow-y-auto">
-            <div className="flex justify-end items-end my-4">
+            <div className="my-4 flex items-end justify-end">
               <button
                 onClick={() => {
                   if (!ref.current) return;
@@ -95,7 +93,7 @@ export default function Page() {
                       active: game._id === router.query.activeRow,
                     })}
                   >
-                    <td className="flex gap-x-2 items-end">
+                    <td className="flex items-end gap-x-2">
                       <Image
                         width={32}
                         height={32}

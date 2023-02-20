@@ -1,54 +1,78 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState } from "react";
 import { useT } from "../Hooks/useT";
 
 export default function Login() {
   const router = useRouter();
   const { locale } = router;
   const t = useT();
+  const [error, setError] = useState<
+    "password_does_not_match" | "username_already_exists" | null
+  >(null);
 
   return (
-    <div className="bg-black w-screen h-screen">
+    <div className="h-screen w-screen bg-black">
       <img
         src="/images/start_map.png"
-        className="z-0 absolute w-screen h-screen object-contain"
+        className="absolute z-0 h-screen w-screen object-contain"
         alt=""
       />
-      <section className="h-screen z-50 absolute flex items-center  justify-center  w-screen overflow-hidden">
+      <section className="absolute z-50 flex h-screen w-screen  items-center  justify-center overflow-hidden">
         <select
           value={locale}
           onChange={(evt) => {
             const locale = evt.currentTarget.value;
             router.push("/register", "/register", { locale });
           }}
-          className="cursor-pointer bg-opacity-70 absolute top-0 right-0  bg-black text-center text-2xl appearance-none block px-3 py-4 w-fit   text-yellow-500 font-bold   border border-opacity-25 border-white outline-none"
+          className="absolute top-0 right-0 block w-fit  cursor-pointer appearance-none border border-white border-opacity-25 bg-black bg-opacity-70 px-3   py-4 text-center   text-2xl font-bold text-yellow-500 outline-none"
         >
           <option
-            className=" text-yellow-500 uppercase  bg-black text-2xl "
+            className=" bg-black text-2xl  uppercase text-yellow-500 "
             value="en"
           >
             🇬🇧 &nbsp; {(locale === "el" ? "ΑΓΓΛΙΚΑ" : `English`).toUpperCase()}
           </option>
           <option
-            className="text-yellow-500 uppercase  bg-black text-2xl "
+            className="bg-black text-2xl  uppercase text-yellow-500 "
             value="el"
           >
             🇬🇷 &nbsp;{(locale === "el" ? "ΕΛΛΗΝΙΚΑ" : `Greek`).toUpperCase()}
           </option>
         </select>
         <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            const res = await fetch(form.action, {
+              method: form.method,
+              body: JSON.stringify(data),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+            const d = await res.json();
+            if (res.status > 299) {
+              setError(d.msg);
+            } else {
+              router.push("/");
+            }
+          }}
           method="post"
           action="/api/auth?type=register"
-          className="max-w-xl  w-full grid gap-y-8  bg-black bg-opacity-80 border border-white border-opacity-30 p-8 rounded"
+          className="grid  w-full max-w-xl gap-y-8  rounded border border-white border-opacity-30 bg-black bg-opacity-80 p-8"
         >
-          <h1 className="text-3xl font-bold h-12 text-yellow-500">
+          <h1 className="h-12 text-3xl font-bold text-yellow-500">
             {t("register_title")}
           </h1>
           <input
             name="userName"
             placeholder={t("register_username")}
             type="text"
-            className="input placeholder-yellow-800  input-bordered bg-black bg-opacity-60  w-full bordered text-yellow-500  outline-none focus:outline-none text-2xl  "
+            className="input-bordered input  bordered w-full bg-black  bg-opacity-60 text-2xl text-yellow-500  placeholder-yellow-800 outline-none focus:outline-none  "
           />
 
           <input
@@ -57,7 +81,7 @@ export default function Login() {
             placeholder={t("register_password")}
             autoComplete="off"
             type="password"
-            className="input placeholder-yellow-800  input-bordered bg-black bg-opacity-60  w-full bordered text-yellow-500  outline-none focus:outline-none text-2xl  "
+            className="input-bordered input  bordered w-full bg-black  bg-opacity-60 text-2xl text-yellow-500  placeholder-yellow-800 outline-none focus:outline-none  "
           />
 
           <input
@@ -66,7 +90,7 @@ export default function Login() {
             name="passwordConfirmation"
             placeholder={t("register_password_confirm")}
             type="password"
-            className="input placeholder-yellow-800  input-bordered bg-black bg-opacity-70  w-full bordered text-yellow-500  outline-none focus:outline-none text-2xl  "
+            className="input-bordered input  bordered w-full bg-black  bg-opacity-70 text-2xl text-yellow-500  placeholder-yellow-800 outline-none focus:outline-none  "
           />
 
           <input
@@ -74,12 +98,16 @@ export default function Login() {
             role="button"
             value={t("register_button")}
             type="submit"
-            className="input hover:bg-white hover:scale-95 hover:bg-opacity-5 placeholder-yellow-800  input-bordered bg-black bg-opacity-70  w-full bordered text-yellow-500  outline-none focus:outline-none text-2xl  "
+            className="input-bordered input bordered w-full bg-black  bg-opacity-70 text-2xl text-yellow-500  placeholder-yellow-800 outline-none hover:scale-95  hover:bg-white hover:bg-opacity-5 focus:outline-none  "
           />
+          {error && (
+            <div className="text-center text-sm text-red-500">{error}</div>
+          )}
 
           <Link
             href="/login"
-            className="text-right text-sm text-yellow-300 w-full"
+            role="button"
+            className="w-full text-right text-sm text-yellow-300"
           >
             {t("register_login")}
           </Link>
