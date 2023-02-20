@@ -56,7 +56,7 @@ export default function Page() {
 
       <EditModal onClose={closeModal} />
       <div className="relative grid h-screen w-screen grid-cols-[1fr_1fr] overflow-hidden">
-        <div className="max-h-screen overflow-auto border p-4">
+        <div className="max-h-screen overflow-auto p-4">
           <div className="overflow-y-auto">
             <div className="my-4 flex items-end justify-end">
               <button
@@ -65,13 +65,13 @@ export default function Page() {
                   router.replace("/admin");
                   ref.current.checked = true;
                 }}
-                className="btn bg-violet-500 hover:bg-violet-500 "
+                className="btn "
               >
                 New Game
               </button>
             </div>
 
-            <table className="table w-full">
+            <table className="table-zebra table w-full">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -171,13 +171,7 @@ export default function Page() {
               latitude={obj.latitude}
               longitude={obj.longitude}
               anchor="top"
-            >
-              {/* <img
-            className="h-20 border-2  bg-black  border-yellow-400  shadow-xl w-20 rounded-full"
-            src="/images/male.png"
-            alt=""
-          /> */}
-            </Marker>
+            ></Marker>
           ))}
         </Map>
       </div>
