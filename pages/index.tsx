@@ -1,19 +1,18 @@
-import Map, { Marker } from "react-map-gl";
-import { useGeolocated } from "react-geolocated";
-import { toast } from "react-toastify";
+import clsx from "clsx";
 import getDistance from "geolib/es/getDistance";
 import Link from "next/link";
-import { useGames } from "../lib/games/queries";
-import { formatDistance } from "../lib/utils";
-import { useT } from "../Hooks/useT";
-import clsx from "clsx";
 import { useRouter } from "next/router";
+import { useGeolocated } from "react-geolocated";
+import Map, { Marker } from "react-map-gl";
+import { toast } from "react-toastify";
 import { QuestCard } from "../components/QuestCard";
+import { useQuests } from "../lib/quests/queries";
+import { formatDistance } from "../lib/utils";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
 export default function Page() {
-  const { data: games } = useGames();
+  const { data: games } = useQuests();
   const { coords } = useGeolocated({
     positionOptions: {
       enableHighAccuracy: false,
@@ -30,19 +29,18 @@ export default function Page() {
     longitude: 0,
   };
   const router = useRouter();
-  const activeQuest = games?.find((g) => g._id === router.query.quest);
+  const activeQuest = games?.find((g) => g.id === router.query.quest);
   const distance = getDistance(
     { latitude, longitude },
     {
-      latitude: activeQuest?.latitude ?? 0,
-      longitude: activeQuest?.longitude ?? 0,
+      latitude: activeQuest?.lat ?? 0,
+      longitude: activeQuest?.lng ?? 0,
     },
     0.1
   );
-  console.log(activeQuest?.radius, distance);
 
   return (
-    <div className="w-screen relative h-screen ">
+    <div className="relative h-screen w-screen ">
       <Map
         viewState={{
           pitch: 0,
@@ -56,42 +54,42 @@ export default function Page() {
           width: 100,
           height: 100,
           zoom: 16,
-          latitude: activeQuest?.latitude ?? 0,
-          longitude: activeQuest?.longitude ?? 0,
+          latitude: activeQuest?.lat ?? 0,
+          longitude: activeQuest?.lng ?? 0,
         }}
         mapboxAccessToken={pk}
         mapStyle="mapbox://styles/mapbox/streets-v9"
       >
         <Marker
           anchor="top"
-          longitude={activeQuest?.longitude ?? 0}
-          latitude={activeQuest?.latitude ?? 0}
+          longitude={activeQuest?.lat ?? 0}
+          latitude={activeQuest?.lng ?? 0}
         ></Marker>
       </Map>
-      <div className="fixed top-0 left-0  md:px-8 py-2   w-screen h-screen   z-50 ">
-        <div className="absolute top-2 w-screen  flex flex-col md:items-start items-center  ">
+      <div className="fixed top-0 left-0  z-50 h-screen   w-screen py-2   md:px-8 ">
+        <div className="absolute top-2 flex  w-screen flex-col items-center md:items-start  ">
           <div
             style={{ transform: "skewX(-20deg)" }}
-            className="stroke bg-black pb-0 w-11/12 p-4 bg-opacity-30 text-white relative  drop-shadow-2xl text-4xl font-bold m-4 md:w-96 "
+            className="stroke relative m-4 w-11/12 bg-black bg-opacity-30 p-4 pb-0  text-4xl font-bold text-white drop-shadow-2xl md:w-96 "
           >
             <h1
               style={{
                 textShadow: "-1px -1px 2px #000, 1px 1px 1px #000",
               }}
-              className="z-50 text-white mb-2 font-bold  text-md md:text-4xl text-center"
+              className="text-md z-50 mb-2 text-center  font-bold text-white md:text-4xl"
             >
               {activeQuest?.name} &nbsp;
               <br />
               {formatDistance(distance)} away
             </h1>
 
-            <div className="border-b mt-2 border-black w-full border-dashed"></div>
+            <div className="mt-2 w-full border-b border-dashed border-black"></div>
             <Link
               href={`/${activeQuest?.type ?? "detect"}?quest=${
-                activeQuest?._id
+                activeQuest?.id
               }`}
               className={clsx(
-                "btn rounded-none  btn-square left-0 bottom-0 w-full",
+                "btn-square btn  left-0 bottom-0 w-full rounded-none",
                 {
                   "animate-bounce ":
                     distance < Number(activeQuest?.radius ?? 25),
@@ -103,9 +101,9 @@ export default function Page() {
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-2 left-4  flex gap-x-4  w-screen pr-10 overflow-auto ">
+        <div className="absolute bottom-2 left-4  flex w-screen  gap-x-4 overflow-auto pr-10 ">
           {games.map((obj) => (
-            <Link key={obj._id} href={`?quest=${obj._id}`}>
+            <Link key={obj.id} href={`?quest=${obj.id}`}>
               <QuestCard distance={distance} {...obj} />
             </Link>
           ))}

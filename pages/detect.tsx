@@ -3,7 +3,7 @@ import { Tensor } from "@tensorflow/tfjs";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { useGames } from "../lib/games/queries";
+import { useQuests } from "../lib/quests/queries";
 
 export default function Page() {
   useEffect(() => {
@@ -11,8 +11,8 @@ export default function Page() {
   }, []);
 
   const router = useRouter();
-  const { data: games } = useGames();
-  const activeQuest = games?.find((g) => g._id === router.query.quest);
+  const { data: games } = useQuests();
+  const activeQuest = games?.find((g) => g.id === router.query.quest);
 
   function preprocess(imageTensor: tf.Tensor3D) {
     const widthToHeight = imageTensor.shape[1] / imageTensor.shape[0];
@@ -55,7 +55,7 @@ export default function Page() {
       };
       const className = metaData.classNames[classIndex[0]];
       setDetected(className);
-      if (activeQuest?.detected === className) {
+      if (activeQuest?.detect === className) {
         toast.success(`You found ${className}!`);
         clearInterval(int);
       }
@@ -76,10 +76,10 @@ export default function Page() {
   return (
     <div className="relative">
       <video width={224} height={224} ref={ref} className="h-screen w-screen" />
-      <h1 className="fixed w-screen text-white flex justify-center top-0 p-4 bg-black bg-opacity-60 font-bold text-4xl">
-        Search for {activeQuest?.detected}
+      <h1 className="fixed top-0 flex w-screen justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
+        Search for {activeQuest?.detect}
       </h1>
-      <h1 className="fixed w-screen text-white flex justify-center bottom-0 p-4 bg-black bg-opacity-60 font-bold text-4xl">
+      <h1 className="fixed bottom-0 flex w-screen justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
         i see {detected}...
       </h1>
     </div>

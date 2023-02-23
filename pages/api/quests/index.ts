@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { createNewGame, getGame, getGames } from "../../../lib/games/api";
+import { getQuests } from "../../../lib/quests/api";
 
 export default async function handler(
   req: NextApiRequest,
@@ -7,10 +7,8 @@ export default async function handler(
 ) {
   switch (req.method) {
     case "GET":
-      return getGames(req, res);
+      return getQuests(req, res);
 
-    case "POST":
-      return createNewGame(req, res);
     default:
       res.status(405).send("Method not allowed");
   }

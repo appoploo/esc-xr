@@ -59,8 +59,7 @@ export default function Login() {
             if (res.status > 299) {
               setError(d.msg);
             } else {
-              if (d.admin) router.push("/admin");
-              else router.push("/");
+              router.push("/");
             }
           }}
           method="post"
