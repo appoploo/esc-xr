@@ -1,28 +1,22 @@
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
-  XR,
-  XRButton,
-  useHitTest,
-  Interactive,
-  RayGrab,
   Controllers,
   Hands,
+  Interactive,
+  useHitTest,
+  XR,
+  XRButton,
 } from "@react-three/xr";
+import { Suspense, useRef, useState } from "react";
 
-import { useLoader } from "@react-three/fiber";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { Canvas, MeshProps, useFrame } from "@react-three/fiber";
-import { Mesh, MeshBasicMaterial } from "three";
-import { Box, Text, useFBX, useGLTF } from "@react-three/drei";
+import { Text } from "@react-three/drei";
+import { Canvas, MeshProps, useFrame, useLoader } from "@react-three/fiber";
 import axios from "axios";
+import { Mesh, MeshBasicMaterial } from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { useGltfScene } from "../Hooks/useGltfScene";
 
 const log = (e: any) => axios.post("/api/debug", { e });
 
-export const useGltfScene = (model: string) => {
-  const gltf = useGLTF(model);
-  const scene = useMemo(() => gltf.scene.clone(), [gltf]); // Clone the scene to be able to use multiple instances.
-  return scene;
-};
 function Car(props: MeshProps) {
   const ref = useRef<Mesh>(null);
   const gltf = useGltfScene("/3d/car.gltf");
@@ -82,7 +76,7 @@ export function App() {
   return (
     <>
       <XRButton
-        className="fixed z-50 bottom-0 w-full flex justify-center"
+        className="fixed bottom-0 z-50 flex w-full justify-center"
         mode={"AR"}
         sessionInit={{
           requiredFeatures: ["hit-test"],

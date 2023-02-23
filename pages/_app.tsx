@@ -14,12 +14,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     </>
   );
 }
-// check if session else redirect to login
 
 export const getServerSideProps: GetServerSideProps = withSessionSsr(
   async function getServerSideProps({ req }) {
     const user = req.session.user;
-
     if (!user)
       return {
         redirect: {

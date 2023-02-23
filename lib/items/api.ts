@@ -11,8 +11,6 @@ export async function getItems(req: NextApiRequest, res: NextApiResponse) {
       expand: "model",
     });
   const data = records.map((record) => {
-    console.log();
-
     return {
       ...record,
       src: `${process.env.PB_URL}/api/files/${record.expand.model?.collectionId}/${record.expand.model?.id}/${record.expand.model?.file}`,
