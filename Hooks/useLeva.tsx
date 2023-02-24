@@ -1,32 +1,36 @@
-import { useControls } from "leva";
+import { button, useControls } from "leva";
 import { useRouter } from "next/router";
-import { useItems } from "../lib/items/queries";
+import { updateItem, useItems } from "../lib/items/queries";
 import { useQuests } from "../lib/quests/queries";
-
-const defaultPos = { x: 0, y: 0, z: 0 };
+import useMutation from "./useMutation";
 
 export function useLeva() {
+  const [save] = useMutation(updateItem, ["/api/items"]);
   const { data: quests } = useQuests();
   const { data: items } = useItems();
   const router = useRouter();
-  const data = useControls(
-    {
-      quest: {
-        options: quests?.map((quest) => quest.name) ?? [],
+  const { id, questId } = router.query;
 
-        onChange: (value) => {
-          router.replace({
-            query: {
-              questId: quests?.find((quest) => quest.name === value)?.id,
-            },
-          });
-        },
-      },
+  useControls(
+    {
       name: "Leva",
       position: [0, 0, 0],
       rotation: [0, 0, 0],
+
+      save: button((get) => {
+        const name = get("name");
+        const position = get("position");
+        const rotation = get("rotation");
+
+        save({
+          id: id?.toString(),
+          name,
+          position,
+          rotation,
+        });
+      }),
     },
-    [quests, items]
+    [quests, items, id]
   );
   return null;
 }

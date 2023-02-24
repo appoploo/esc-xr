@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 import { useGeolocated } from "react-geolocated";
 import Map, { Marker } from "react-map-gl";
 import { toast } from "react-toastify";
-import { QuestCard } from "../components/QuestCard";
+import { QuestCard } from "../components/questCard";
 import { useQuests } from "../lib/quests/queries";
 import { formatDistance } from "../lib/utils";
 

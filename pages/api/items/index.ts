@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getItems } from "../../lib/items/api";
-import { withSessionRoute } from "../../lib/withSession";
+import { getItems } from "../../../lib/items/api";
+import { withSessionRoute } from "../../../lib/withSession";
 
 // @ts-ignore
 export default withSessionRoute(loginRoute);

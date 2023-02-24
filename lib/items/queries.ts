@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import useSWR from "swr";
 import { fetcher } from "../utils";
 import { Item } from "./types";
@@ -10,4 +10,8 @@ export function useItems() {
     isLoading: !data && !error,
     isError: error,
   };
+}
+
+export function updateItem(item: Partial<Item>) {
+  return axios.put(`/api/items/${item.id}`, item);
 }
