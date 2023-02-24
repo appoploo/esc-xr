@@ -11,7 +11,7 @@ let schema = yup.object().shape({
   password: yup.string().required("Password is required").min(6),
   passwordConfirmation: yup
     .string()
-    .oneOf([yup.ref("password"), null], "Passwords must match"),
+    .oneOf([yup.ref("password")], "Passwords must match"),
   createdOn: yup.date().default(function () {
     return new Date();
   }),
