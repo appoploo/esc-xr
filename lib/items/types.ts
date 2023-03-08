@@ -15,6 +15,7 @@ export type Item = {
   src: string;
   thumbnail: string;
   scale: number;
+  collectable: boolean;
   expand: {
     model: Expand;
     thumbnail: Expand;

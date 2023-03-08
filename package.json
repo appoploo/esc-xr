@@ -37,7 +37,8 @@
     "three": "^0.150.0",
     "three-stdlib": "^2.21.8",
     "valtio": "^1.10.2",
-    "yup": "^1.0.0"
+    "yup": "^1.0.0",
+    "zustand": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

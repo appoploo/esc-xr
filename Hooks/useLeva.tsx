@@ -11,9 +11,20 @@ export function useLeva() {
   const router = useRouter();
   const { id, questId } = router.query;
 
+  const _items = items?.reduce((acc, item) => {
+    acc[item?.name] = item?.id;
+    return acc;
+  }, {} as Record<string, any>);
+  console.log(_items);
   useControls(
     {
-      name: "Leva",
+      item: {
+        label: "Item",
+        options: _items,
+        onChange: (value) => {
+          router.push(`/editor?id=${value}&questId=${questId}`);
+        },
+      },
       position: [0, 0, 0],
       rotation: [0, 0, 0],
 
@@ -30,7 +41,7 @@ export function useLeva() {
         });
       }),
     },
-    [quests, items, id]
+    [quests, items, _items, id]
   );
   return null;
 }
