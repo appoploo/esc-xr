@@ -1,4 +1,4 @@
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import useSWR from "swr";
 import { fetcher } from "../utils";
 import { Quest } from "./types";
@@ -10,4 +10,8 @@ export function useQuests() {
     isLoading: !data && !error,
     isError: error,
   };
+}
+
+export function updateQuest(id: string, update: Partial<Quest>) {
+  return axios.put(`/api/quests/${id}`, update);
 }

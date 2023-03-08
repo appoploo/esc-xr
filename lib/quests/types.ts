@@ -7,5 +7,6 @@ export type Quest = {
   description?: string;
   radius?: number;
   detect?: string;
+  detect_label?: string;
   expand: any;
 };

@@ -3,7 +3,7 @@ import { Tensor } from "@tensorflow/tfjs";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import { useQuests } from "../lib/quests/queries";
+import { updateQuest, useQuests } from "../lib/quests/queries";
 
 export default function Page() {
   useEffect(() => {
@@ -50,7 +50,6 @@ export default function Page() {
       const preprocessed = preprocess(img);
       const logits = model.predict(preprocessed) as tf.Tensor<tf.Rank.R2>;
       const classIndex = await tf.argMax(tf.squeeze(logits)).data();
-      console.log(await tf.argMax(tf.squeeze(logits)).data());
       const metaData = model.metadata as {
         classNames: string[];
       };
@@ -73,16 +72,75 @@ export default function Page() {
     if (model) predict(model);
   };
 
+  const { data: quests } = useQuests();
+
   const ref = useRef<HTMLVideoElement>(null);
+  const [quest, setQuest] = useState<string | null>(null);
   return (
     <div className="relative">
       <video width={224} height={224} ref={ref} className="h-screen w-screen" />
-      <h1 className="fixed top-0 flex w-screen justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
-        Search for {activeQuest?.detect_label}
-      </h1>
-      <h1 className="fixed bottom-0 flex w-screen justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
-        i see {detected}...
-      </h1>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const quest = e.currentTarget.quest.value;
+          const label = e.currentTarget.label.value;
+          updateQuest(quest, {
+            detect: detected,
+            detect_label: label,
+          });
+        }}
+        className="fixed bottom-0  w-screen  bg-black bg-opacity-60 p-4 text-4xl font-bold text-white"
+      >
+        <div className="grid gap-4   lg:grid-cols-3">
+          <div>
+            <label htmlFor="" className="label-text label">
+              Quest
+            </label>
+
+            <select
+              required
+              defaultValue={"-"}
+              onChange={(e) => {
+                setQuest(e.target.value);
+              }}
+              name="quest"
+              className="select-bordered  select select-sm w-full"
+              id=""
+            >
+              <option value={"-"} disabled>
+                select quest
+              </option>
+              {quests?.map((quest) => (
+                <option key={quest.id} value={quest?.id}>
+                  {quest?.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          {quest && (
+            <>
+              <div className="w-full">
+                <label htmlFor="" className="label-text label">
+                  Label for {detected}
+                </label>
+                <input
+                  required
+                  name="label"
+                  type="text"
+                  className="input-bordered input input-sm w-full "
+                />
+              </div>
+              <div className="flex items-end">
+                <button type="submit" className="btn-sm btn w-full">
+                  {" "}
+                  save
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </form>
     </div>
   );
 }
