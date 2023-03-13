@@ -1,4 +1,5 @@
-import { Arr3 } from "../leva";
+export type Arr3 = [number, number, number];
+
 type Expand = {
   collectionId: string;
   collectionName: string;
@@ -13,6 +14,7 @@ export type Item = {
   position: Arr3;
   rotation: Arr3;
   src: string;
+  type: string;
   thumbnail: string;
   scale: number;
   collectable: boolean;

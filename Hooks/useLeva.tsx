@@ -15,7 +15,6 @@ export function useLeva() {
     acc[item?.name] = item?.id;
     return acc;
   }, {} as Record<string, any>);
-  console.log(_items);
   useControls(
     {
       item: {

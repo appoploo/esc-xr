@@ -2,13 +2,14 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useItems } from "../../lib/items/queries";
 import { useQuests } from "../../lib/quests/queries";
+import { useStore } from "../../store";
 
 export default function Main() {
   const router = useRouter();
   const { data: items } = useItems();
   const { data: quests } = useQuests();
   const { id, quest } = router.query;
-
+  const store = useStore();
   return (
     <div className="absolute right-0 z-50 h-screen  w-[20vw] overflow-auto bg-black  p-4">
       <label htmlFor="" className="label-text label">
@@ -42,6 +43,9 @@ export default function Main() {
       </label>
       {items?.map((item) => (
         <Link
+          onClick={() => {
+            store.setItem(item);
+          }}
           href={{
             query: {
               ...router.query,

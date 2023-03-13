@@ -19,7 +19,6 @@ export default async function updateQuest(
   res: NextApiResponse
 ) {
   const pb = await getPocketBase();
-  console.log(req.query);
   const record = await pb
     .collection("quests")
     .update(`${req.query.id}`, req.body);

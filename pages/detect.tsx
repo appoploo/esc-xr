@@ -50,7 +50,6 @@ export default function Page() {
       const preprocessed = preprocess(img);
       const logits = model.predict(preprocessed) as tf.Tensor<tf.Rank.R2>;
       const classIndex = await tf.argMax(tf.squeeze(logits)).data();
-      console.log(await tf.argMax(tf.squeeze(logits)).data());
       const metaData = model.metadata as {
         classNames: string[];
       };

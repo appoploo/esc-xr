@@ -4,7 +4,6 @@ import { Item } from "./types";
 
 export async function getItems(req: NextApiRequest, res: NextApiResponse) {
   const pb = await getPocketBase();
-  console.log(req.query.quest);
   const records = await pb
     .collection("items")
     .getFullList<Item>(200 /* batch size */, {
@@ -24,7 +23,8 @@ export async function getItems(req: NextApiRequest, res: NextApiResponse) {
 
 export async function updateItem(req: NextApiRequest, res: NextApiResponse) {
   const pb = await getPocketBase();
-  const records = await pb.collection("items").update(req.body.id, req.body);
+  const id = `${req.query.id}`;
+  const records = await pb.collection("items").update(id, req.body);
 
   res.status(200).json(records);
 }
