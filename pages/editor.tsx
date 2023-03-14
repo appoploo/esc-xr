@@ -31,8 +31,8 @@ function Item(props: Item) {
   useEffect(() => {
     if (!actions || !names) return;
     const name = names?.at(0);
-    if (name && !props.needsClick) actions?.[name]?.play();
-  }, [actions, props.needsClick, names]);
+    if (name) actions?.[name]?.play();
+  }, [actions, names]);
 
   const v3 = createV3(store.item.position ?? [0, 0, 0]);
   const e3 = createE3(store.item.rotation ?? [0, 0, 0]);
@@ -61,11 +61,6 @@ function Item(props: Item) {
   return (
     <Suspense fallback={null}>
       <mesh
-        onClick={() => {
-          if (!actions || !names) return;
-          const name = names?.at(0);
-          if (name && props.needsClick) actions?.[name]?.play();
-        }}
         ref={ref}
         scale={props.scale}
         position={props.position}

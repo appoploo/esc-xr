@@ -8,7 +8,7 @@ import {
 } from "@react-three/xr";
 import { Suspense, useEffect, useRef, useState } from "react";
 
-import { useAnimations } from "@react-three/drei";
+import { Box, useAnimations } from "@react-three/drei";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import axios from "axios";
 import { Mesh, MeshBasicMaterial, Vector3 } from "three";
@@ -32,8 +32,9 @@ function Item(props: Item) {
   useEffect(() => {
     if (!actions || !names) return;
     const name = names?.at(0);
-    if (name && !props.needsClick) actions?.[name]?.play();
-  }, [actions, props.needsClick, names]);
+    if (name && ["box", "default"].includes(props.type))
+      actions?.[name]?.play();
+  }, [actions, props.type, names]);
 
   const v3 = createV3(store.item.position ?? [0, 0, 0]);
   const e3 = createE3(store.item.rotation ?? [0, 0, 0]);
@@ -50,14 +51,14 @@ function Item(props: Item) {
     if (selected) {
       ref.current.position.copy(three.camera.position);
       ref.current.rotation.copy(three.camera.rotation);
-      ref.current.translateZ(-5);
+      ref.current.translateZ(-10);
     } else if (ref.current.position.y > 0) {
-      ref.current.position.y -= 0.1;
+      if (ref.current.position.y > 0) {
+        ref.current.position.y -= 0.4;
+      }
     } else {
-      ref.current.rotation.x = 0;
-      ref.current.rotation.z = 0;
+      ref.current.lookAt(three.camera.position);
     }
-    ref.current.rotation.y += 0.01;
   });
 
   return (
@@ -70,12 +71,20 @@ function Item(props: Item) {
       >
         <Interactive
           onSelect={() => {
-            if (!actions || !names) return;
-            const name = names?.at(0);
-            if (name && props.needsClick) actions?.[name]?.play();
-            setSelected(!selected);
+            if (!ref.current) return;
+            if (props.type === "collectable") ref.current.visible = false;
+            if (props.type === "default") setSelected(!selected);
           }}
         >
+          <Box position={[0, 0.7, 0]} args={[1.5, 1.5, 1.5]}>
+            {/* make it invisible */}
+            <meshBasicMaterial
+              visible={false}
+              attach="material"
+              transparent
+              opacity={0}
+            />
+          </Box>
           <primitive object={gltf.scene} />
         </Interactive>
       </mesh>
