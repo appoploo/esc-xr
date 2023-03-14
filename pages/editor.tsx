@@ -1,10 +1,16 @@
-import { Environment, Grid, OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
+import {
+  Box,
+  Environment,
+  Grid,
+  OrbitControls,
+  useAnimations,
+} from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { useRouter } from "next/router";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Mesh, Vector3 } from "three";
+import { GLTFLoader } from "three-stdlib";
 import { Settings } from "../components/Settings";
-import { useGltfScene } from "../Hooks/useGltfScene";
 import { useItems } from "../lib/items/queries";
 import { Arr3, Item } from "../lib/items/types";
 import { createE3, createV3 } from "../lib/leva";
@@ -12,14 +18,21 @@ import { useStore } from "../store";
 
 function Item(props: Item) {
   const ref = useRef<Mesh>(null);
-  const gltf = useGltfScene(props?.src ?? "");
-  console.log(gltf.animations);
+  const gltf = useLoader(GLTFLoader, props.src);
+  // const gltf = useGltfScene(props?.src ?? "");
+
+  const { actions, names } = useAnimations(gltf.animations, ref);
   const router = useRouter();
   const id = router.query?.id;
   const isSelected = id === props.id;
   const [dragging, setDragging] = useState(false);
-
   const store = useStore();
+
+  useEffect(() => {
+    if (!actions || !names) return;
+    const name = names?.at(0);
+    if (name && !props.needsClick) actions?.[name]?.play();
+  }, [actions, props.needsClick, names]);
 
   const v3 = createV3(store.item.position ?? [0, 0, 0]);
   const e3 = createE3(store.item.rotation ?? [0, 0, 0]);
@@ -29,28 +42,31 @@ function Item(props: Item) {
     store.item.scale ?? 1
   );
 
-  // useFrame((t) => {
-  //   if (!ref.current) return;
-  //   if (dragging) {
-  //     t.raycaster.setFromCamera(t.mouse, t.camera);
-  //     const direction = t.raycaster.ray.direction;
-  //     const v3 = t.camera.position
-  //       .clone()
-  //       .add(direction.clone().multiplyScalar(20));
-  //     ref.current.position.copy(v3);
-  //     ref.current.lookAt(t.camera.position);
-  //   } else if (isSelected) {
-  //     ref.current.position.copy(v3);
-  //     ref.current.rotation.copy(e3);
-  //   }
-  //   ref.current.scale.copy(scale);
-  // });
-
+  useFrame((t) => {
+    if (!ref.current) return;
+    if (dragging) {
+      t.raycaster.setFromCamera(t.mouse, t.camera);
+      const direction = t.raycaster.ray.direction;
+      const v3 = t.camera.position
+        .clone()
+        .add(direction.clone().multiplyScalar(20));
+      ref.current.position.copy(v3);
+      ref.current.lookAt(t.camera.position);
+    } else if (isSelected) {
+      ref.current.position.copy(v3);
+      ref.current.rotation.copy(e3);
+    }
+    ref.current.scale.copy(scale);
+  });
   return (
     <Suspense fallback={null}>
       <mesh
+        onClick={() => {
+          if (!actions || !names) return;
+          const name = names?.at(0);
+          if (name && props.needsClick) actions?.[name]?.play();
+        }}
         ref={ref}
-        onClick={() => alert("click")}
         scale={props.scale}
         position={props.position}
         rotation={props.rotation}
@@ -69,7 +85,16 @@ function Item(props: Item) {
           }
         }}
       >
-        <primitive object={gltf} />
+        <Box position={[0, 0.7, 0]} args={[1.5, 1.5, 1.5]}>
+          {/* make it invisible */}
+          <meshBasicMaterial
+            visible={false}
+            attach="material"
+            transparent
+            opacity={0}
+          />
+        </Box>
+        <primitive object={gltf.scene} />
       </mesh>
     </Suspense>
   );

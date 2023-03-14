@@ -6,21 +6,42 @@ import {
   XR,
   XRButton,
 } from "@react-three/xr";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
-import { Text } from "@react-three/drei";
-import { Canvas, MeshProps, useFrame, useLoader } from "@react-three/fiber";
+import { useAnimations } from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import axios from "axios";
-import { Mesh, MeshBasicMaterial } from "three";
+import { Mesh, MeshBasicMaterial, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { useGltfScene } from "../Hooks/useGltfScene";
+import { useItems } from "../lib/items/queries";
+import { Item } from "../lib/items/types";
+import { createE3, createV3 } from "../lib/leva";
+import { useStore } from "../store";
 
 const log = (e: any) => axios.post("/api/debug", { e });
 
-function Car(props: MeshProps) {
+function Item(props: Item) {
   const ref = useRef<Mesh>(null);
-  const gltf = useGltfScene("/3d/car.gltf");
+  const gltf = useLoader(GLTFLoader, props.src);
   const [selected, setSelected] = useState(false);
+
+  const { actions, names } = useAnimations(gltf.animations, ref);
+  const [dragging, setDragging] = useState(false);
+  const store = useStore();
+
+  useEffect(() => {
+    if (!actions || !names) return;
+    const name = names?.at(0);
+    if (name && !props.needsClick) actions?.[name]?.play();
+  }, [actions, props.needsClick, names]);
+
+  const v3 = createV3(store.item.position ?? [0, 0, 0]);
+  const e3 = createE3(store.item.rotation ?? [0, 0, 0]);
+  const scale = new Vector3(
+    store.item.scale ?? 1,
+    store.item.scale ?? 1,
+    store.item.scale ?? 1
+  );
 
   useFrame((three) => {
     const ray = three.raycaster.ray;
@@ -41,9 +62,23 @@ function Car(props: MeshProps) {
 
   return (
     <Suspense fallback={null}>
-      <Interactive onSelect={() => setSelected(!selected)}>
-        <primitive {...props} ref={ref} object={gltf} />
-      </Interactive>
+      <mesh
+        ref={ref}
+        scale={props.scale}
+        position={props.position}
+        rotation={props.rotation}
+      >
+        <Interactive
+          onSelect={() => {
+            if (!actions || !names) return;
+            const name = names?.at(0);
+            if (name && props.needsClick) actions?.[name]?.play();
+            setSelected(!selected);
+          }}
+        >
+          <primitive object={gltf.scene} />
+        </Interactive>
+      </mesh>
     </Suspense>
   );
 }
@@ -72,7 +107,7 @@ function Reticle() {
 export function App() {
   const ref = useRef<Mesh>(null);
   const refMesh = useRef<MeshBasicMaterial>(null);
-
+  const { data: items } = useItems();
   return (
     <>
       <XRButton
@@ -98,16 +133,11 @@ export function App() {
             modelLeft="/model-left.glb"
             modelRight="/model-right.glb"
           />
-
-          <Car position={[0, 5, -5]} />
-          <Car position={[-2, 2, -5]} />
+          {items?.map((item) => (
+            <Item key={item.id} {...item} />
+          ))}
           <Reticle />
-          <Text position={[0, 0, -10]}>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Error nam
-            blanditiis voluptate temporibus delectus dolores vero nobis quos
-            neque dolorum beatae debitis, minus aperiam magni itaque laudantium.
-            Distinctio, perferendis illum.
-          </Text>
+
           <ambientLight intensity={0.5} />
         </XR>
       </Canvas>

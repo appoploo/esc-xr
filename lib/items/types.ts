@@ -13,6 +13,7 @@ export type Item = {
   name: string;
   position: Arr3;
   rotation: Arr3;
+  needsClick?: boolean;
   src: string;
   type: string;
   thumbnail: string;
