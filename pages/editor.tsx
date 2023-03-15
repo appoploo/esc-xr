@@ -102,6 +102,7 @@ export default function Page() {
       <Settings />
       <Canvas>
         <ambientLight intensity={3} />
+        <axesHelper position={[0, -4.95, 0]} args={[60]} />
         <Grid args={[200, 200]} position={[0, -5, 0]} />
         <OrbitControls />
         <Environment background preset="dawn" />
