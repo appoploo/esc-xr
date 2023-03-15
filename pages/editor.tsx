@@ -55,8 +55,8 @@ function Item(props: Item) {
     } else if (isSelected) {
       ref.current.position.copy(v3);
       ref.current.rotation.copy(e3);
+      ref.current.scale.copy(scale);
     }
-    ref.current.scale.copy(scale);
   });
   return (
     <Suspense fallback={null}>

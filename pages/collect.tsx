@@ -56,8 +56,6 @@ function Item(props: Item) {
       if (ref.current.position.y > 0) {
         ref.current.position.y -= 0.4;
       }
-    } else {
-      ref.current.lookAt(three.camera.position);
     }
   });
 
