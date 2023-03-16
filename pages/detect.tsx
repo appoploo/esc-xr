@@ -1,7 +1,7 @@
 import * as tf from "@tensorflow/tfjs";
 import { Tensor } from "@tensorflow/tfjs";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useQuests } from "../lib/quests/queries";
 
@@ -36,7 +36,6 @@ export default function Page() {
     );
     return crop.div(255);
   }
-  const [detected, setDetected] = useState("Loading...");
 
   const predict = async (model: tf.GraphModel<tf.io.IOHandler>) => {
     if (!ref.current) return;
@@ -54,10 +53,10 @@ export default function Page() {
         classNames: string[];
       };
       const className = metaData.classNames[classIndex[0]];
-      setDetected(className);
       if (activeQuest?.detect === className) {
-        toast.success(`You found ${className}!`);
+        toast.success(`Μπράβο τα κατάφερες!`);
         clearInterval(int);
+        router.push("/");
       }
       img.dispose();
     }, 1000);
@@ -77,10 +76,7 @@ export default function Page() {
     <div className="relative">
       <video width={224} height={224} ref={ref} className="h-screen w-screen" />
       <h1 className="fixed top-0 flex w-screen justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
-        Search for {activeQuest?.detect_label}
-      </h1>
-      <h1 className="fixed bottom-0 flex w-screen justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
-        i see {detected}...
+        {activeQuest?.description}
       </h1>
     </div>
   );
