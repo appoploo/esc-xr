@@ -1,8 +1,11 @@
 import * as tf from "@tensorflow/tfjs";
 import { Tensor } from "@tensorflow/tfjs";
+import clsx from "clsx";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { useCounter, useInterval } from "usehooks-ts";
 import { useQuests } from "../lib/quests/queries";
 
 export default function Page() {
@@ -37,6 +40,8 @@ export default function Page() {
     return crop.div(255);
   }
 
+  const { count, setCount, increment, decrement, reset } = useCounter(-1);
+  useInterval(decrement, count > 0 ? 1000 : null);
   const predict = async (model: tf.GraphModel<tf.io.IOHandler>) => {
     if (!ref.current) return;
 
@@ -44,6 +49,7 @@ export default function Page() {
       facingMode: "environment",
     });
     let int: NodeJS.Timer;
+    setCount(30);
     int = setInterval(async () => {
       const img = await camera.capture();
       const preprocessed = preprocess(img);
@@ -66,18 +72,94 @@ export default function Page() {
     // tf load model weight and metadata
     const model = await tf.loadGraphModel(
       "https://tfhub.dev/google/tfjs-model/imagenet/mobilenet_v3_small_100_224/classification/5/default/1",
-      { fromTFHub: true }
+      {
+        fromTFHub: true,
+      }
     );
     if (model) predict(model);
   };
 
+  useEffect(() => {
+    if (count === 0) setModal(true);
+  }, [count]);
+
   const ref = useRef<HTMLVideoElement>(null);
+  const [modal, setModal] = useState(false);
+
   return (
     <div className="relative">
-      <video width={224} height={224} ref={ref} className="h-screen w-screen" />
-      <h1 className="fixed top-0 flex w-screen justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
-        {activeQuest?.description}
-      </h1>
+      <input type="checkbox" id="my-modal" className="modal-toggle" />
+      <div
+        className={clsx("modal", {
+          "modal-open": modal,
+        })}
+      >
+        <div className="modal-box">
+          <h3 className="text-lg font-bold">Ο χρόνος σου έληξε</h3>
+          <p className="py-4">
+            Ο χρόνος σου έληξε, Προσπάθησε ξανά! η Επεστρέψε στο κυρίως μενού
+          </p>
+          <div className="modal-action">
+            <Link href="/">
+              <label className="btn">Επεστρέψε!</label>
+            </Link>
+            <label
+              onClick={() => {
+                setCount(30);
+                setModal(false);
+              }}
+              className="btn"
+            >
+              Προσπάθησε ξανά!
+            </label>
+          </div>
+        </div>
+      </div>
+      <video
+        width={224}
+        height={224}
+        ref={ref}
+        className={clsx("h-screen w-screen", {
+          "opacity-0": count === 0,
+        })}
+      />
+
+      <div
+        style={{ transform: "skewX(-20deg)" }}
+        className="stroke fixed z-50 m-4 mx-auto w-11/12  bg-black bg-opacity-30 p-4 pb-0  text-4xl font-bold text-white drop-shadow-2xl  "
+      >
+        <h1
+          style={{
+            textShadow: "-1px -1px 2px #000, 1px 1px 1px #000",
+          }}
+          className="text-md z-50 mb-2 text-center  text-2xl font-bold text-white"
+        >
+          {activeQuest?.description} &nbsp;
+          <br />
+          <progress
+            value={count}
+            className="progress progress-success w-full"
+            max="30"
+          ></progress>
+        </h1>
+
+        <div className="mt-2 w-full border-b border-dashed border-black"></div>
+      </div>
+      {count < 0 ? (
+        <div className="fixed top-0 flex h-screen  w-screen items-center justify-center bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
+          <div>
+            <div className="text text-center">loading...</div>
+            <progress className="progress  w-96  "></progress>
+          </div>
+        </div>
+      ) : (
+        <h1 className="fixed top-0 grid w-screen  justify-center  bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
+          <span>{activeQuest?.description}</span>
+          <span className=" mt-2 text-sm">
+            χρόνος που απομένει: {count} δευτερόλεπτα
+          </span>
+        </h1>
+      )}
     </div>
   );
 }
