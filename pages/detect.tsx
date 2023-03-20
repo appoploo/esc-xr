@@ -59,7 +59,7 @@ export default function Page() {
         classNames: string[];
       };
       const className = metaData.classNames[classIndex[0]];
-      if (activeQuest?.detect === className) {
+      if (activeQuest?.detect?.includes(className)) {
         clearInterval(int);
         router.push("/");
         toast.success(`Μπράβο τα κατάφερες!`);

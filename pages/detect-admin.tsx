@@ -1,5 +1,7 @@
 import * as tf from "@tensorflow/tfjs";
 import { Tensor } from "@tensorflow/tfjs";
+import clsx from "clsx";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
@@ -55,7 +57,7 @@ export default function Page() {
       };
       const className = metaData.classNames[classIndex[0]];
       setDetected(className);
-      if (activeQuest?.detect === className) {
+      if (activeQuest?.detect?.includes(className)) {
         toast.success(`You found ${className}!`);
         clearInterval(int);
       }
@@ -76,6 +78,15 @@ export default function Page() {
 
   const ref = useRef<HTMLVideoElement>(null);
   const [quest, setQuest] = useState<string | null>(null);
+  const [searchList, setSearchList] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!quest) return;
+    const questData = quests?.find((q) => q.id === quest);
+    setSearchList(questData?.detect ?? []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quest]);
+
   return (
     <div className="relative">
       <video width={224} height={224} ref={ref} className="h-screen w-screen" />
@@ -86,18 +97,25 @@ export default function Page() {
           const quest = e.currentTarget.quest.value;
           const label = e.currentTarget.label.value;
           updateQuest(quest, {
-            detect: detected,
+            detect: searchList,
             detect_label: label,
-          });
+          })
+            .then(() => {
+              toast.success("Updated quest");
+            })
+            .catch((e) => {
+              toast.error(e.message);
+            });
         }}
-        className="fixed bottom-0  w-screen  bg-black bg-opacity-60 p-4 text-4xl font-bold text-white"
+        className="fixed top-0  w-screen  bg-black bg-opacity-60 p-2 text-4xl font-bold text-white"
       >
-        <div className="grid gap-4   lg:grid-cols-3">
+        <div
+          className={clsx("grid gap-4", {
+            "grid-cols-2": quest,
+          })}
+        >
           <div>
-            <label htmlFor="" className="label-text label">
-              Quest
-            </label>
-
+            <label className="label-text">Select quest</label>
             <select
               required
               defaultValue={"-"}
@@ -108,9 +126,7 @@ export default function Page() {
               className="select-bordered  select select-sm w-full"
               id=""
             >
-              <option value={"-"} disabled>
-                select quest
-              </option>
+              <option value="-" disabled />
               {quests?.map((quest) => (
                 <option key={quest.id} value={quest?.id}>
                   {quest?.name}
@@ -119,28 +135,80 @@ export default function Page() {
             </select>
           </div>
           {quest && (
-            <>
-              <div className="w-full">
-                <label htmlFor="" className="label-text label">
-                  Label for {detected}
-                </label>
-                <input
-                  required
-                  name="label"
-                  type="text"
-                  className="input-bordered input input-sm w-full "
-                />
-              </div>
-              <div className="flex items-end">
-                <button type="submit" className="btn-sm btn w-full">
-                  {" "}
-                  save
-                </button>
-              </div>
-            </>
+            <div className="w-full">
+              <label htmlFor="" className="label-text ">
+                Label
+              </label>
+              <input
+                required
+                name="label"
+                type="text"
+                className="input-bordered input input-sm w-full "
+              />
+            </div>
           )}
         </div>
+        <div className="inline-flex  w-screen gap-4 overflow-auto">
+          {searchList.map((item, idx) => (
+            <div
+              onClick={() => {
+                setSearchList(searchList.filter((i) => item !== i));
+              }}
+              key={idx}
+              className="m-1 flex w-fit  items-center justify-center rounded-full border border-yellow-700  bg-yellow-700 py-1 px-2 font-medium text-yellow-100 "
+            >
+              <div className="max-w-full flex-initial truncate text-xs font-normal leading-none">
+                {item}
+              </div>
+              <div className="flex flex-auto flex-row-reverse">
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="100%"
+                    height="100%"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="feather feather-x ml-2 h-4 w-4 cursor-pointer rounded-full hover:text-yellow-400"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <input className="btn-sm btn mt-2 w-full rounded" type="submit" />
       </form>
+
+      <div className=" fixed bottom-4  w-full ">
+        <div className="flex w-full justify-center">
+          <button
+            onClick={() => {
+              if (!searchList.includes(detected))
+                setSearchList([detected, ...searchList]);
+            }}
+            className=" btn  h-20 w-20 rounded-full"
+          >
+            <Image
+              loader={() =>
+                "https://s2.svgbox.net/hero-outline.svg?ic=camera&color=888"
+              }
+              src="https://s2.svgbox.net/hero-outline.svg?ic=camera"
+              width={50}
+              height={50}
+              alt="camera"
+            />
+          </button>
+        </div>
+        <div className="flex w-full justify-center text-lg font-bold">
+          i see {detected}
+        </div>
+      </div>
     </div>
   );
 }
