@@ -60,9 +60,9 @@ export default function Page() {
       };
       const className = metaData.classNames[classIndex[0]];
       if (activeQuest?.detect === className) {
-        toast.success(`Μπράβο τα κατάφερες!`);
         clearInterval(int);
         router.push("/");
+        toast.success(`Μπράβο τα κατάφερες!`);
       }
       img.dispose();
     }, 1000);
