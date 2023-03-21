@@ -1,10 +1,13 @@
+import clsx from "clsx";
 import getDistance from "geolib/es/getDistance";
 import { GetServerSideProps } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useRef } from "react";
 import { useGeolocated } from "react-geolocated";
 import Map, { Layer, MapRef, Marker, Source } from "react-map-gl";
 import { toast } from "react-toastify";
+import { InfoModal } from "../components/infoModal";
 import { Menu } from "../components/menu";
 import { useQuests } from "../lib/quests/queries";
 import { User } from "../lib/users/types";
@@ -88,6 +91,8 @@ export default function Page(props: User) {
     });
   }, [activeQuest]);
 
+  const showBtn = distance < Number(activeQuest?.radius ?? 25);
+
   return (
     <div className="relative h-screen w-screen  ">
       <Map
@@ -122,19 +127,55 @@ export default function Page(props: User) {
           </div>
         </div>
         <Menu userName={props.userName} />
+        <InfoModal />
 
-        {/* <Link
-          href={`/${activeQuest?.type ?? "detect"}?quest=${activeQuest?.id}`}
-          className={clsx(
-            "btn-square btn  left-0 bottom-0 w-full rounded-none",
-            {
-              "animate-bounce ": distance < Number(activeQuest?.radius ?? 25),
-              hidden: distance > Number(activeQuest?.radius ?? 25),
-            }
+        <div className="fixed bottom-0 -z-50  grid h-fit w-screen grid-cols-[1fr_56px_56px] flex-wrap justify-end gap-0 p-4">
+          {showBtn ? (
+            <Link
+              href={`/${activeQuest?.type ?? "detect"}?quest=${
+                activeQuest?.id
+              }`}
+              className={clsx(
+                " pointer-events-auto mx-auto flex h-14 w-full  items-center justify-center border-none  bg-black  bg-opacity-70 text-lg font-bold text-white "
+              )}
+            >
+              {activeQuest?.type}
+            </Link>
+          ) : (
+            <div />
           )}
-        >
-          {activeQuest?.type}
-        </Link> */}
+          {activeQuest ? (
+            <label
+              role="button"
+              htmlFor="my-modal"
+              className=" pointer-events-auto grid "
+            >
+              <picture className="block h-14 w-14 border-l border-white border-opacity-60  bg-black bg-opacity-70 p-3">
+                <img
+                  className="hf-full w-full"
+                  src="https://s2.svgbox.net/octicons.svg?ic=info&color=fff"
+                  alt=""
+                />
+              </picture>
+            </label>
+          ) : (
+            <div />
+          )}
+          <label
+            role="button"
+            htmlFor="my-drawer"
+            className=" pointer-events-auto "
+          >
+            <picture className="block h-14 w-14 border-l border-white border-opacity-60  bg-black bg-opacity-70 p-3">
+              <img
+                src="https://s2.svgbox.net/hero-outline.svg?ic=menu&color=fff"
+                alt=""
+              />
+            </picture>
+          </label>
+        </div>
+        <Menu userName={props.userName} />
+        <InfoModal />
       </div>
     </div>
   );

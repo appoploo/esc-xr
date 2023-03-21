@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useInventory } from "../../lib/inventory/queries";
 import { useQuests } from "../../lib/quests/queries";
 
-export function Menu(props: { userName: string }) {
+export function InfoQuest(props: { userName: string }) {
   const { data: inventory } = useInventory();
   const { data: quests } = useQuests();
   const router = useRouter();
@@ -21,7 +21,7 @@ export function Menu(props: { userName: string }) {
       })}
     >
       <input
-        id="my-drawer"
+        id="my-drawer-4"
         type="checkbox"
         onChange={(evt) => {
           setDrawer(evt.target.checked);
