@@ -6,14 +6,15 @@ import { useRouter } from "next/router";
 import { useGeolocated } from "react-geolocated";
 import Map, { Marker } from "react-map-gl";
 import { toast } from "react-toastify";
-import { QuestCard } from "../components/questCard";
+import { Menu } from "../components/menu";
 import { useQuests } from "../lib/quests/queries";
+import { User } from "../lib/users/types";
 import { formatDistance } from "../lib/utils";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
-export default function Page() {
+export default function Page(props: User) {
   const { data: games } = useQuests();
   const { coords } = useGeolocated({
     positionOptions: {
@@ -68,7 +69,7 @@ export default function Page() {
           latitude={activeQuest?.lng ?? 0}
         ></Marker>
       </Map>
-      <div className="fixed top-0 left-0  z-50 h-screen   w-screen py-2   md:px-8 ">
+      <div className="fixed top-0 left-0  z-50 h-screen   w-screen ">
         <div className="absolute top-2 flex  w-screen flex-col items-center md:items-start  ">
           <div
             style={{ transform: "skewX(-20deg)" }}
@@ -103,13 +104,7 @@ export default function Page() {
             </Link>
           </div>
         </div>
-        <div className="absolute bottom-2 left-4  flex w-screen  gap-x-4 overflow-auto pr-10 ">
-          {games.map((obj) => (
-            <Link key={obj.id} href={`?quest=${obj.id}`}>
-              <QuestCard distance={distance} {...obj} />
-            </Link>
-          ))}
-        </div>
+        <Menu userName={props.userName} />
       </div>
     </div>
   );

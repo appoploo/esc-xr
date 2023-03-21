@@ -12,6 +12,7 @@ declare module "iron-session" {
     user?: {
       test?: boolean;
       id: string;
+      userName?: string;
       admin?: boolean;
     };
   }

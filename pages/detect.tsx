@@ -8,13 +8,14 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useCounter, useInterval } from "usehooks-ts";
 import { useQuests } from "../lib/quests/queries";
+import { User } from "../lib/users/types";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 
-export default function Page() {
+export default function Page(props: User) {
   useEffect(() => {
     loadModel();
   }, []);
-
+  console.log(props);
   const router = useRouter();
   const { data: games } = useQuests();
   const activeQuest = games?.find((g) => g.id === router.query.quest);

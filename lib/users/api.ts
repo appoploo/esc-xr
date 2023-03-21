@@ -66,6 +66,7 @@ export async function login(req: NextApiRequest, res: NextApiResponse) {
   if (match && user?._id) {
     req.session.user = {
       admin: user?.admin,
+      userName: user?.userName ?? "-",
       id: user?._id.toString(),
     };
     await req.session.save();

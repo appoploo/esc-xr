@@ -20,11 +20,11 @@ export function QuestCard(props: Quest & { distance?: number }) {
           }
         )}
       >
-        <div className="grid  grid-cols-[200px_1fr] gap-4 border">
+        <div className="grid  h-24 grid-cols-[200px_1fr] gap-4 border">
           <picture>
             <img
               className="border"
-              src="https://developers.google.com/static/maps/images/landing/hero_directions_api.png"
+              src="https://www.elefsina.gr/sites/default/files/1.jpg"
               alt="google map image"
             ></img>
           </picture>
