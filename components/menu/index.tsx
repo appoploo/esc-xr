@@ -11,18 +11,32 @@ export function Menu(props: { userName: string }) {
   const router = useRouter();
 
   const [filter, setFilter] = useState("all");
+  const [item, setItem] = useState("Items");
+  const [drawer, setDrawer] = useState(false);
   return (
-    <div className="drawer">
-      <input id="my-drawer" type="checkbox" className="drawer-toggle" />
+    <div
+      className={clsx("drawer", {
+        "pointer-events-none": !drawer,
+        "pointer-events-auto": drawer,
+      })}
+    >
+      <input
+        id="my-drawer"
+        type="checkbox"
+        onChange={(evt) => {
+          setDrawer(evt.target.checked);
+        }}
+        className="drawer-toggle"
+      />
       <div className="drawer-content">
         <label
           role="button"
           htmlFor="my-drawer"
-          className=" fixed bottom-4 right-4 z-50 "
+          className=" pointer-events-auto fixed bottom-4 right-4 z-50 "
         >
-          <picture className="block h-14 w-14 rounded-md bg-black p-3">
+          <picture className="block h-14 w-14 rounded-md bg-black bg-opacity-50 p-3">
             <img
-              src="https://s2.svgbox.net/hero-outline.svg?ic=menu&color=aaa"
+              src="https://s2.svgbox.net/hero-outline.svg?ic=menu&color=fff"
               alt=""
             />
           </picture>
@@ -102,14 +116,37 @@ export function Menu(props: { userName: string }) {
 
           <div className="divider"></div>
           <label className="label-text mb-4 text-xl font-bold">Inventory</label>
-          <div className="grid w-full grid-cols-3 gap-4 ">
+          <div className="tabs mb-4">
+            <button
+              onClick={() => {
+                setItem("Items");
+              }}
+              className={clsx(" tab-bordered tab w-1/2 ", {
+                "tab-active": item === "Items",
+              })}
+            >
+              Items
+            </button>
+            <button
+              onClick={() => {
+                setItem("Achievements");
+              }}
+              className={clsx(" tab-bordered tab w-1/2", {
+                "tab-active": item === "Achievements",
+              })}
+            >
+              Achievements
+            </button>
+          </div>
+          <div className="grid w-full grid-cols-3 gap-2 ">
             {inventory?.map((obj) => (
               <div
                 key={obj.id}
-                className="border border-white border-opacity-30"
+                className=" w-fit border border-white border-opacity-30 "
               >
                 <picture>
                   <img
+                    className="h-full w-full bg-cover"
                     src="https://raw.githubusercontent.com/mpoapostolis/escape-vr/main/public/images/ee3d0973-0f32-4cf1-87a0-167882430a54.png"
                     alt=""
                   />
