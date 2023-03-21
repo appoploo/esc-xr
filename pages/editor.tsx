@@ -6,6 +6,7 @@ import {
   useAnimations,
 } from "@react-three/drei";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Mesh, Vector3 } from "three";
@@ -14,6 +15,7 @@ import { Settings } from "../components/Settings";
 import { useItems } from "../lib/items/queries";
 import { Arr3, Item } from "../lib/items/types";
 import { createE3, createV3 } from "../lib/leva";
+import { accessLevel, withSessionSsr } from "../lib/withSession";
 import { useStore } from "../store";
 
 function Item(props: Item) {
@@ -113,3 +115,9 @@ export default function Page() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = withSessionSsr(
+  async function getServerSideProps(ctx) {
+    return accessLevel("admin", ctx);
+  }
+);

@@ -40,3 +40,24 @@ export function withSessionSsr<
 ) {
   return withIronSessionSsr(handler, sessionOptions);
 }
+
+type Role = "admin" | "user";
+export function accessLevel(role: Role, { req }: GetServerSidePropsContext) {
+  const user = req.session.user;
+
+  let redirect = false;
+  if (!user) redirect = true;
+  if (role === "admin" && !user?.admin) redirect = true;
+
+  if (redirect)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: true,
+      },
+    };
+  else
+    return {
+      props: { ...user },
+    };
+}

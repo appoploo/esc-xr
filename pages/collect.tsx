@@ -11,11 +11,13 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { Box, useAnimations } from "@react-three/drei";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import axios from "axios";
+import { GetServerSideProps } from "next";
 import { Mesh, MeshBasicMaterial, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { useItems } from "../lib/items/queries";
 import { Item } from "../lib/items/types";
 import { createE3, createV3 } from "../lib/leva";
+import { accessLevel, withSessionSsr } from "../lib/withSession";
 import { useStore } from "../store";
 
 const log = (e: any) => axios.post("/api/debug", { e });
@@ -151,5 +153,11 @@ export function App() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = withSessionSsr(
+  async function getServerSideProps(ctx) {
+    return accessLevel("user", ctx);
+  }
+);
 
 export default App;

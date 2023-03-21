@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import getDistance from "geolib/es/getDistance";
+import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useGeolocated } from "react-geolocated";
@@ -8,6 +9,7 @@ import { toast } from "react-toastify";
 import { QuestCard } from "../components/questCard";
 import { useQuests } from "../lib/quests/queries";
 import { formatDistance } from "../lib/utils";
+import { accessLevel, withSessionSsr } from "../lib/withSession";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
 
@@ -112,3 +114,9 @@ export default function Page() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = withSessionSsr(
+  async function getServerSideProps(ctx) {
+    return accessLevel("user", ctx);
+  }
+);

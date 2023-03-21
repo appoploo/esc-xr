@@ -1,11 +1,13 @@
 import * as tf from "@tensorflow/tfjs";
 import { Tensor } from "@tensorflow/tfjs";
 import clsx from "clsx";
+import { GetServerSideProps } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { updateQuest, useQuests } from "../lib/quests/queries";
+import { accessLevel, withSessionSsr } from "../lib/withSession";
 
 export default function Page() {
   useEffect(() => {
@@ -212,3 +214,9 @@ export default function Page() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = withSessionSsr(
+  async function getServerSideProps(ctx) {
+    return accessLevel("admin", ctx);
+  }
+);

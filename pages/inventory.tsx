@@ -1,4 +1,6 @@
 import clsx from "clsx";
+import { GetServerSideProps } from "next";
+import { accessLevel, withSessionSsr } from "../lib/withSession";
 
 export default function Menu() {
   const items = Array(40).fill("");
@@ -29,3 +31,9 @@ export default function Menu() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = withSessionSsr(
+  async function getServerSideProps(ctx) {
+    return accessLevel("user", ctx);
+  }
+);
