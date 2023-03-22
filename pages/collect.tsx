@@ -119,14 +119,17 @@ export function App() {
   const { data: items } = useItems();
   return (
     <>
-      <XRButton
-        className="fixed bottom-0 z-50 flex w-full justify-center"
-        mode={"AR"}
-        sessionInit={{
-          requiredFeatures: ["hit-test"],
-        }}
-        onError={(error) => log(error)}
-      ></XRButton>
+      <div className="fixed bottom-0 z-50   grid h-fit w-screen  p-4">
+        <XRButton
+          className={
+            " flex h-14 w-full items-center justify-center  border border-gray-700  bg-black  bg-opacity-70 text-lg font-bold text-white "
+          }
+          mode={"AR"}
+          sessionInit={{
+            requiredFeatures: ["hit-test"],
+          }}
+        ></XRButton>
+      </div>
 
       <Canvas className="h-screen w-screen ">
         <XR>

@@ -3,13 +3,14 @@ import getDistance from "geolib/es/getDistance";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGeolocated } from "react-geolocated";
 import Map, { Layer, MapRef, Marker, Source } from "react-map-gl";
 import { toast } from "react-toastify";
 import { InfoModal } from "../components/infoModal";
 import { Menu } from "../components/menu";
 import { useQuests } from "../lib/quests/queries";
+import { Quest } from "../lib/quests/types";
 import { User } from "../lib/users/types";
 import { formatDistance } from "../lib/utils";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
@@ -26,6 +27,21 @@ export function Head1(props: { children: React.ReactNode }) {
     >
       {props.children}
     </h1>
+  );
+}
+
+function Action(props: Quest) {
+  return props.type ? (
+    <Link
+      href={`/${props?.type ?? "detect"}?quest=${props?.id}`}
+      className={clsx(
+        "pointer-events-auto mx-auto flex h-14 w-full  items-center justify-center border-none  bg-black  bg-opacity-70 text-lg font-bold text-white "
+      )}
+    >
+      {props?.type}
+    </Link>
+  ) : (
+    <div />
   );
 }
 
@@ -93,6 +109,9 @@ export default function Page(props: User) {
 
   const showBtn = distance < Number(activeQuest?.radius ?? 25);
 
+  const showCollect = showBtn && activeQuest?.type === "collect";
+  const [xr, setXr] = useState(false);
+
   return (
     <div className="relative h-screen w-screen  ">
       <Map
@@ -130,20 +149,7 @@ export default function Page(props: User) {
         <InfoModal />
 
         <div className="fixed bottom-0 -z-50  grid h-fit w-screen grid-cols-[1fr_56px_56px] flex-wrap justify-end gap-0 p-4">
-          {showBtn ? (
-            <Link
-              href={`/${activeQuest?.type ?? "detect"}?quest=${
-                activeQuest?.id
-              }`}
-              className={clsx(
-                " pointer-events-auto mx-auto flex h-14 w-full  items-center justify-center border-none  bg-black  bg-opacity-70 text-lg font-bold text-white "
-              )}
-            >
-              {activeQuest?.type}
-            </Link>
-          ) : (
-            <div />
-          )}
+          <Action {...(activeQuest as Quest)} />
           {activeQuest ? (
             <label
               role="button"
