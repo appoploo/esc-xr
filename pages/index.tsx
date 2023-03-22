@@ -3,7 +3,7 @@ import getDistance from "geolib/es/getDistance";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useGeolocated } from "react-geolocated";
 import Map, { Layer, MapRef, Marker, Source } from "react-map-gl";
 import { toast } from "react-toastify";
@@ -109,9 +109,6 @@ export default function Page(props: User) {
 
   const showBtn = distance < Number(activeQuest?.radius ?? 25);
 
-  const showCollect = showBtn && activeQuest?.type === "collect";
-  const [xr, setXr] = useState(false);
-
   return (
     <div className="relative h-screen w-screen  ">
       <Map
@@ -145,8 +142,6 @@ export default function Page(props: User) {
             )}
           </div>
         </div>
-        <Menu userName={props.userName} />
-        <InfoModal />
 
         <div className="fixed bottom-0 -z-50  grid h-fit w-screen grid-cols-[1fr_56px_56px] flex-wrap justify-end gap-0 p-4">
           <Action {...(activeQuest as Quest)} />
@@ -180,7 +175,7 @@ export default function Page(props: User) {
             </picture>
           </label>
         </div>
-        <Menu userName={props.userName} />
+        <Menu {...props} />
         <InfoModal />
       </div>
     </div>

@@ -4,8 +4,9 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useInventory } from "../../lib/inventory/queries";
 import { useQuests } from "../../lib/quests/queries";
+import { User } from "../../lib/users/types";
 
-export function Menu(props: { userName: string }) {
+export function Menu(props: User) {
   const { data: inventory } = useInventory();
   const { data: quests } = useQuests();
   const router = useRouter();
@@ -17,12 +18,8 @@ export function Menu(props: { userName: string }) {
   const achievementLength = inventory?.filter(
     (obj) => obj.type === "achievement"
   ).length;
-
-  function isQuestDone(id: string) {
-    const found = inventory.find((obj) => obj.expand?.quest_id?.id === id);
-    return found;
-  }
-
+  const isQuestDone = (id: string) =>
+    inventory.find((obj) => obj.expand?.quest_id?.id === id);
   return (
     <div
       className={clsx("drawer z-50", {
@@ -43,8 +40,15 @@ export function Menu(props: { userName: string }) {
         <label htmlFor="my-drawer" className="drawer-overlay"></label>
 
         <div className="menu  w-80 gap-4 bg-base-100 p-4 text-base-content">
-          <div className=" flex content-between items-center ">
-            <h1 className="label-text text-xl font-bold">{props.userName}</h1>
+          <div className=" grid grid-cols-2 content-between items-start gap-2 ">
+            <div className="grid w-full justify-end gap-2">
+              <h1 className="label-text text-xl font-bold">{props.userName}</h1>
+              {props.admin && (
+                <Link href="/detect-admin">
+                  <button className="btn-sm btn ">detect-admin</button>
+                </Link>
+              )}
+            </div>
             <form
               action="/api/auth?type=logout"
               className="ml-auto"
