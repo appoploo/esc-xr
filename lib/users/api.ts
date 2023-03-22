@@ -3,6 +3,8 @@ import { ObjectId } from "mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import * as yup from "yup";
 import myDb from "../../helpers/mongo";
+import { inventoryItem } from "../inventory/types";
+import { getPocketBase } from "../pocketBase";
 import { getErrors } from "../yupError";
 const saltRounds = 10;
 
@@ -86,50 +88,19 @@ export async function logout(req: NextApiRequest, res: NextApiResponse) {
 
 export async function reset(req: NextApiRequest, res: NextApiResponse) {
   const id = req.session.user?.id;
-  const db = await myDb();
-
-  await db.collection("users").updateOne(
-    { _id: new ObjectId(id) },
-    {
-      $set: {
-        scene: "intro",
-        time: 600,
-      },
-    }
-  );
-  await db.collection("achievements").deleteMany({
-    userId: new ObjectId(id),
-  });
-  await db.collection("used").deleteMany({
-    userId: new ObjectId(id),
+  const pb = await getPocketBase();
+  const inventory = await pb
+    .collection("inventory")
+    .getFullList<inventoryItem>(200 /* batch size */, {
+      filter: `user_id = "${id}"`,
+    });
+  inventory.forEach(async (item) => {
+    if (item?.id) await pb.collection("inventory").delete(item.id);
   });
 
-  await db.collection("inventory").deleteMany({
-    userId: new ObjectId(id),
+  return res.status(200).json({
+    msg: "ok",
   });
-
-  await db.collection("users").updateOne(
-    {
-      userId: new ObjectId(id),
-    },
-    {
-      $set: {
-        scene: "intro",
-        time: 600,
-      },
-    }
-  );
-
-  await db.collection("items").updateMany(
-    {},
-    {
-      $set: {
-        replaced: [],
-      },
-    }
-  );
-
-  return res.writeHead(302, { Location: "/" }).end();
 }
 
 export async function updateUser(req: NextApiRequest, res: NextApiResponse) {

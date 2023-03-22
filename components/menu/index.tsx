@@ -1,7 +1,9 @@
+import axios from "axios";
 import clsx from "clsx";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import useMutation from "../../Hooks/useMutation";
 import { useInventory } from "../../lib/inventory/queries";
 import { useQuests } from "../../lib/quests/queries";
 import { User } from "../../lib/users/types";
@@ -11,6 +13,11 @@ export function Menu(props: User) {
   const { data: quests } = useQuests();
   const router = useRouter();
 
+  const [reset] = useMutation(
+    () => axios.post("/api/auth?type=reset"),
+    ["/api/inventory"]
+  );
+
   const [filter, setFilter] = useState("all");
   const [item, setItem] = useState<"item" | "achievement">("item");
   const [drawer, setDrawer] = useState(false);
@@ -18,9 +25,10 @@ export function Menu(props: User) {
   const achievementLength = inventory?.filter(
     (obj) => obj.type === "achievement"
   ).length;
+
   const isQuestDone = (id: string) =>
     inventory.find((obj) => obj.expand?.quest_id?.id === id);
-
+  const ref = useRef<HTMLInputElement>(null);
   return (
     <div
       className={clsx("drawer z-50", {
@@ -29,6 +37,7 @@ export function Menu(props: User) {
       })}
     >
       <input
+        ref={ref}
         id="my-drawer"
         type="checkbox"
         onChange={(evt) => {
@@ -42,21 +51,27 @@ export function Menu(props: User) {
 
         <div className="menu  w-80 gap-4 bg-base-100 p-4 text-base-content">
           <div className=" grid grid-cols-2 content-between items-start gap-2 ">
-            <div className="grid w-full justify-end gap-2">
-              <h1 className="label-text text-xl font-bold">{props.userName}</h1>
-              {props.admin && (
-                <Link href="/detect-admin">
-                  <button className="btn-sm btn ">detect-admin</button>
-                </Link>
-              )}
-            </div>
+            <h1 className="label-text text-xl font-bold">{props.userName}</h1>
+
             <form
               action="/api/auth?type=logout"
               className="ml-auto"
               method="POST"
             >
-              <button className="btn-sm btn ">Logout</button>
+              <button className="btn-sm btn w-full ">Logout</button>
             </form>
+
+            {props.admin && (
+              <button onClick={() => reset()} className="btn-sm btn w-full ">
+                Reset
+              </button>
+            )}
+
+            {!props.test && (
+              <Link href="/detect-admin">
+                <button className="btn-sm btn w-full ">detect-admin</button>
+              </Link>
+            )}
           </div>
           <div className="divider "></div>
 
@@ -118,6 +133,9 @@ export function Menu(props: User) {
                 key={obj.id}
               >
                 <Link
+                  onClick={() => {
+                    ref.current?.click();
+                  }}
                   className=" flex w-full items-center"
                   href={`?quest=${obj.id}`}
                 >
