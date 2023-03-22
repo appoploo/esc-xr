@@ -6,6 +6,7 @@ type Expand = {
   id: string;
   model: string;
   file: string;
+  image: string;
 };
 
 export type Item = {

@@ -11,8 +11,18 @@ export function Menu(props: { userName: string }) {
   const router = useRouter();
 
   const [filter, setFilter] = useState("all");
-  const [item, setItem] = useState("Items");
+  const [item, setItem] = useState<"item" | "achievement">("item");
   const [drawer, setDrawer] = useState(false);
+  const itemLength = inventory?.filter((obj) => obj.type === "item").length;
+  const achievementLength = inventory?.filter(
+    (obj) => obj.type === "achievement"
+  ).length;
+
+  function isQuestDone(id: string) {
+    const found = inventory.find((obj) => obj.expand?.quest_id?.id === id);
+    return found;
+  }
+
   return (
     <div
       className={clsx("drawer z-50", {
@@ -78,68 +88,76 @@ export function Menu(props: { userName: string }) {
               Done
             </button>
           </div>
-          {quests.map((obj) => (
-            <div
-              className={clsx("btn h-fit", {
-                "border border-yellow-400 hover:border hover:border-yellow-400":
-                  obj.id === router.query.quest,
-              })}
-              key={obj.id}
-            >
-              <Link
-                className=" flex w-full items-center"
-                href={`?quest=${obj.id}`}
+          {quests
+            ?.filter((obj) => {
+              if (filter === "all") return true;
+              if (filter === "active") return !isQuestDone(obj.id ?? "-");
+              if (filter === "done") return isQuestDone(obj.id ?? "-");
+            })
+            .map((obj) => (
+              <div
+                className={clsx("btn h-fit", {
+                  "border border-yellow-400 hover:border hover:border-yellow-400":
+                    obj.id === router.query.quest,
+                })}
+                key={obj.id}
               >
-                <div className="mr-auto">{obj.name}</div>
-                <picture>
-                  <img
-                    alt="item"
-                    src="https://s2.svgbox.net/materialui.svg?ic=done"
-                  ></img>
-                </picture>
-              </Link>
-            </div>
-          ))}
+                <Link
+                  className=" flex w-full items-center"
+                  href={`?quest=${obj.id}`}
+                >
+                  <div className="mr-auto">{obj.name}</div>
+                  <picture>
+                    <img
+                      alt="item"
+                      src="https://s2.svgbox.net/materialui.svg?ic=done"
+                    ></img>
+                  </picture>
+                </Link>
+              </div>
+            ))}
 
           <div className="divider"></div>
           <label className="label-text mb-4 text-xl font-bold">Inventory</label>
           <div className="tabs mb-4">
             <button
               onClick={() => {
-                setItem("Items");
+                setItem("item");
               }}
               className={clsx(" tab-bordered tab w-1/2 ", {
-                "tab-active": item === "Items",
+                "tab-active": item === "item",
               })}
             >
-              Items
+              Items ({itemLength})
             </button>
             <button
               onClick={() => {
-                setItem("Achievements");
+                setItem("achievement");
               }}
               className={clsx(" tab-bordered tab w-1/2", {
-                "tab-active": item === "Achievements",
+                "tab-active": item === "achievement",
               })}
             >
-              Achievements
+              Achievements ({achievementLength})
             </button>
           </div>
-          <div className="grid w-full grid-cols-3 gap-2 ">
-            {inventory?.map((obj) => (
-              <div
-                key={obj.id}
-                className=" w-fit border border-white border-opacity-30 "
-              >
-                <picture>
-                  <img
-                    className="h-full w-full bg-cover"
-                    src="https://raw.githubusercontent.com/mpoapostolis/escape-vr/main/public/images/ee3d0973-0f32-4cf1-87a0-167882430a54.png"
-                    alt=""
-                  />
-                </picture>
-              </div>
-            ))}
+          <div className="grid w-full grid-cols-4 gap-2 ">
+            {inventory
+              ?.filter((obj) => obj.type === item)
+              ?.map((obj) => (
+                <div
+                  key={obj.id}
+                  className=" w-fit border border-white border-opacity-30 "
+                >
+                  <picture>
+                    <img
+                      className="h-full w-full bg-cover"
+                      src={obj.src + "?thumb=200x200"}
+                      alt=""
+                    />
+                  </picture>
+                </div>
+              ))}
           </div>
         </div>
       </div>

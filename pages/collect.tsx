@@ -3,6 +3,7 @@ import {
   Hands,
   Interactive,
   useHitTest,
+  useXR,
   XR,
   XRButton,
 } from "@react-three/xr";
@@ -10,25 +11,25 @@ import { Suspense, useEffect, useRef, useState } from "react";
 
 import { Box, useAnimations } from "@react-three/drei";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
-import axios from "axios";
 import { GetServerSideProps } from "next";
-import { Mesh, MeshBasicMaterial, Vector3 } from "three";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
+import { Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import useMutation from "../Hooks/useMutation";
+import { addItemToInventory, useInventory } from "../lib/inventory/queries";
 import { useItems } from "../lib/items/queries";
 import { Item } from "../lib/items/types";
 import { createE3, createV3 } from "../lib/leva";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 import { useStore } from "../store";
 
-const log = (e: any) => axios.post("/api/debug", { e });
-
 function Item(props: Item) {
+  const [mutate] = useMutation(addItemToInventory, ["/api/inventory"]);
   const ref = useRef<Mesh>(null);
   const gltf = useLoader(GLTFLoader, props.src);
   const [selected, setSelected] = useState(false);
-
   const { actions, names } = useAnimations(gltf.animations, ref);
-  const [dragging, setDragging] = useState(false);
   const store = useStore();
 
   useEffect(() => {
@@ -60,7 +61,7 @@ function Item(props: Item) {
       }
     }
   });
-
+  const router = useRouter();
   return (
     <Suspense fallback={null}>
       <mesh
@@ -71,6 +72,11 @@ function Item(props: Item) {
       >
         <Interactive
           onSelect={() => {
+            mutate({
+              name: props.name,
+              item_id: props.id,
+              type: "item",
+            });
             if (!ref.current) return;
             if (props.type === "collectable") ref.current.visible = false;
             if (props.type === "default") setSelected(!selected);
@@ -113,17 +119,37 @@ function Reticle() {
   );
 }
 
+function Reward(props: { giveReward: boolean }) {
+  const xr = useXR();
+  const router = useRouter();
+
+  const [mutate] = useMutation(addItemToInventory, ["/api/inventory"]);
+
+  useEffect(() => {
+    if (!props.giveReward) return;
+    xr.session?.end().then(() => {
+      mutate({
+        quest_id: `${router.query.quest}`,
+        type: "achievement",
+      })
+        .then(() => router.push("/"))
+        .then(() => toast("You collected all the items! 🎉"));
+    });
+  }, [props.giveReward, xr.session, router, mutate]);
+  return null;
+}
+
 export function App() {
-  const ref = useRef<Mesh>(null);
-  const refMesh = useRef<MeshBasicMaterial>(null);
   const { data: items } = useItems();
+  const { data: inventory } = useInventory();
+  const itemsIDidntCollect = items?.filter(
+    (item) => !inventory?.find((i) => i.item_id === item.id)
+  );
   return (
     <>
       <div className="fixed bottom-0 z-50   grid h-fit w-screen  p-4">
         <XRButton
-          className={
-            " flex h-14 w-full items-center justify-center  border border-gray-700  bg-black  bg-opacity-70 text-lg font-bold text-white "
-          }
+          className="flex h-14 w-full items-center justify-center  border border-gray-700  bg-black  bg-opacity-70 text-lg font-bold text-white"
           mode={"AR"}
           sessionInit={{
             requiredFeatures: ["hit-test"],
@@ -133,6 +159,7 @@ export function App() {
 
       <Canvas className="h-screen w-screen ">
         <XR>
+          <Reward giveReward={itemsIDidntCollect.length === 0} />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{
@@ -145,7 +172,7 @@ export function App() {
             modelLeft="/model-left.glb"
             modelRight="/model-right.glb"
           />
-          {items?.map((item) => (
+          {itemsIDidntCollect?.map((item) => (
             <Item key={item.id} {...item} />
           ))}
           <Reticle />

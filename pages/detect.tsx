@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useCounter, useInterval } from "usehooks-ts";
+import useMutation from "../Hooks/useMutation";
+import { addItemToInventory } from "../lib/inventory/queries";
 import { useQuests } from "../lib/quests/queries";
 import { User } from "../lib/users/types";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
@@ -15,7 +17,6 @@ export default function Page(props: User) {
   useEffect(() => {
     loadModel();
   }, []);
-  console.log(props);
   const router = useRouter();
   const { data: games } = useQuests();
   const activeQuest = games?.find((g) => g.id === router.query.quest);
@@ -43,6 +44,8 @@ export default function Page(props: User) {
     return crop.div(255);
   }
 
+  const [mutate] = useMutation(addItemToInventory, ["/api/inventory"]);
+
   const { count, setCount, increment, decrement, reset } = useCounter(-1);
   useInterval(decrement, count > 0 ? 1000 : null);
   const predict = async (model: tf.GraphModel<tf.io.IOHandler>) => {
@@ -64,8 +67,12 @@ export default function Page(props: User) {
       const className = metaData.classNames[classIndex[0]];
       if (activeQuest?.detect?.includes(className)) {
         clearInterval(int);
-        router.push("/");
-        toast.success(`Μπράβο τα κατάφερες!`);
+        await mutate({
+          quest_id: `${router.query.quest}`,
+          type: "achievement",
+        })
+          .then(() => router.push("/"))
+          .then(() => toast.success(`Μπράβο τα κατάφερες!`));
       }
       img.dispose();
     }, 1000);
