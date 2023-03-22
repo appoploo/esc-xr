@@ -20,6 +20,7 @@ export function Menu(props: User) {
   ).length;
   const isQuestDone = (id: string) =>
     inventory.find((obj) => obj.expand?.quest_id?.id === id);
+
   return (
     <div
       className={clsx("drawer z-50", {
@@ -98,9 +99,19 @@ export function Menu(props: User) {
               if (filter === "active") return !isQuestDone(obj.id ?? "-");
               if (filter === "done") return isQuestDone(obj.id ?? "-");
             })
+            .sort((a, b) => {
+              if (isQuestDone(a.id ?? "-") && !isQuestDone(b.id ?? "-")) {
+                return 1;
+              }
+              if (!isQuestDone(a.id ?? "-") && isQuestDone(b.id ?? "-")) {
+                return -1;
+              }
+              return 0;
+            })
             .map((obj) => (
               <div
                 className={clsx("btn h-fit", {
+                  "disabled opacity-60": isQuestDone(obj.id ?? "-"),
                   "border border-yellow-400 hover:border hover:border-yellow-400":
                     obj.id === router.query.quest,
                 })}
@@ -111,12 +122,14 @@ export function Menu(props: User) {
                   href={`?quest=${obj.id}`}
                 >
                   <div className="mr-auto">{obj.name}</div>
-                  <picture>
-                    <img
-                      alt="item"
-                      src="https://s2.svgbox.net/materialui.svg?ic=done"
-                    ></img>
-                  </picture>
+                  {isQuestDone(obj.id ?? "-") && (
+                    <picture>
+                      <img
+                        alt="item"
+                        src="https://s2.svgbox.net/materialui.svg?ic=done&color=8f0"
+                      ></img>
+                    </picture>
+                  )}
                 </Link>
               </div>
             ))}
