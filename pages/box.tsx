@@ -16,11 +16,13 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Sphere } from "../components/sphere";
 import useMutation from "../Hooks/useMutation";
 import { addItemToInventory, useInventory } from "../lib/inventory/queries";
 import { useItems } from "../lib/items/queries";
 import { Item } from "../lib/items/types";
 import { createE3, createV3 } from "../lib/leva";
+import { useQuests } from "../lib/quests/queries";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 import { useStore } from "../store";
 
@@ -137,7 +139,8 @@ export function App() {
   const [inTheBox, setInTheBox] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const router = useRouter();
-
+  const { data: quests } = useQuests();
+  const activeQuest = quests?.find((q) => q.id === `${router.query.quest}`);
   return (
     <>
       <div className="fixed bottom-0 z-50   grid h-fit w-screen  p-4">
@@ -151,6 +154,8 @@ export function App() {
       </div>
 
       <Canvas className="h-screen w-screen ">
+        {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
+
         <XR>
           <Reward giveReward={inTheBox.length === items?.length - 1} />
           <Controllers

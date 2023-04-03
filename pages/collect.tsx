@@ -16,11 +16,13 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Sphere } from "../components/sphere";
 import useMutation from "../Hooks/useMutation";
 import { addItemToInventory, useInventory } from "../lib/inventory/queries";
 import { useItems } from "../lib/items/queries";
 import { Item } from "../lib/items/types";
 import { createE3, createV3 } from "../lib/leva";
+import { useQuests } from "../lib/quests/queries";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 import { useStore } from "../store";
 
@@ -145,6 +147,9 @@ export function App() {
   const itemsIDidntCollect = items?.filter(
     (item) => !inventory?.find((i) => i.item_id === item.id)
   );
+  const router = useRouter();
+  const { data: quests } = useQuests();
+  const activeQuest = quests?.find((q) => q.id === `${router.query.quest}`);
   return (
     <>
       <div className="fixed bottom-0 z-50   grid h-fit w-screen  p-4">
@@ -159,6 +164,8 @@ export function App() {
 
       <Canvas className="h-screen w-screen ">
         <XR>
+          <Sphere />
+          // {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
           <Reward giveReward={itemsIDidntCollect.length === 0} />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
@@ -176,7 +183,6 @@ export function App() {
             <Item key={item.id} {...item} />
           ))}
           <Reticle />
-
           <ambientLight intensity={0.5} />
         </XR>
       </Canvas>

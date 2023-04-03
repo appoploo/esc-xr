@@ -12,4 +12,6 @@ export type Quest = {
   detect_label?: string;
   image?: string;
   expand: any;
+  outdoor?: boolean;
+  sphere?: string;
 };
