@@ -165,7 +165,7 @@ export function App() {
       <Canvas className="h-screen w-screen ">
         <XR>
           <Sphere />
-          // {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
+          {/* {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />} */}
           <Reward giveReward={itemsIDidntCollect.length === 0} />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
