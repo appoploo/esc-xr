@@ -20,6 +20,7 @@ export type Item = {
   thumbnail: string;
   scale: number;
   collectable: boolean;
+  required: string[];
   expand: {
     model: Expand;
     thumbnail: Expand;

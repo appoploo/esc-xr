@@ -203,6 +203,7 @@ export function App() {
             ?.map((item) => (
               <Interactive
                 onSelect={() => {
+                  if (item.type !== "draggable") return;
                   setSelected(item.id === selected ? null : item.id);
                 }}
                 key={item.id}

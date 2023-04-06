@@ -10,7 +10,7 @@ import {
 import { Suspense, useEffect, useRef, useState } from "react";
 
 import { Box, useAnimations } from "@react-three/drei";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useLoader } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
@@ -39,20 +39,6 @@ function Item(props: Item) {
       actions?.[name]?.play();
   }, [actions, props.type, names]);
 
-  useFrame((three) => {
-    const ray = three.raycaster.ray;
-    // change position of ref same as raycaster
-    if (!ref.current) return;
-    if (selected) {
-      ref.current.position.copy(three.camera.position);
-      ref.current.rotation.copy(three.camera.rotation);
-      ref.current.translateZ(-10);
-    } else if (ref.current.position.y > 0) {
-      if (ref.current.position.y > 0) {
-        ref.current.position.y -= 0.4;
-      }
-    }
-  });
   return (
     <Suspense fallback={null}>
       <mesh
@@ -177,9 +163,16 @@ export function App() {
             modelLeft="/model-left.glb"
             modelRight="/model-right.glb"
           />
-          {itemsIDidntCollect?.map((item) => (
-            <Item key={item.id} {...item} />
-          ))}
+          {itemsIDidntCollect
+            ?.filter((obj) => {
+              if (obj.required.length === 0) return true;
+              return obj.required.every((req) =>
+                inventory?.find((i) => i.item_id === req)
+              );
+            })
+            ?.map((item) => (
+              <Item key={item.id} {...item} />
+            ))}
           <Reticle />
           <ambientLight intensity={0.5} />
         </XR>
