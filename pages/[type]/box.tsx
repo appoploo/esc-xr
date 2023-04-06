@@ -76,6 +76,8 @@ function Item(
         position={props.position}
         rotation={props.rotation}
       >
+        <pointLight intensity={0.5} />
+
         <Box position={[0, 0.7, 0]} args={[1.5, 1.5, 1.5]}>
           {/* make it invisible */}
           <meshBasicMaterial
@@ -162,8 +164,6 @@ export function App() {
         {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
 
         <XR>
-          <ambientLight intensity={2} />
-          <directionalLight position={[0, 10, 0]} />
           <Reward
             infoBox={activeQuest?.infobox}
             giveReward={inTheBox.length === items?.length - 1}

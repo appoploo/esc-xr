@@ -14,7 +14,7 @@ import { Canvas, useLoader } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
-import { Mesh } from "three";
+import { Euler, Mesh } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import useMutation from "../../Hooks/useMutation";
 import { addItemToInventory, useInventory } from "../../lib/inventory/queries";
@@ -22,7 +22,6 @@ import { useItems } from "../../lib/items/queries";
 import { Item } from "../../lib/items/types";
 import { useQuests } from "../../lib/quests/queries";
 import { accessLevel, withSessionSsr } from "../../lib/withSession";
-import { useStore } from "../../store";
 
 function Item(props: Item) {
   const [mutate] = useMutation(addItemToInventory, ["/api/inventory"]);
@@ -30,14 +29,16 @@ function Item(props: Item) {
   const gltf = useLoader(GLTFLoader, props.src);
   const [selected, setSelected] = useState(false);
   const { actions, names } = useAnimations(gltf.animations, ref);
-  const store = useStore();
 
   useEffect(() => {
     if (!actions || !names) return;
     const name = names?.at(0);
-    if (name && ["box", "default"].includes(props.type))
-      actions?.[name]?.play();
+    if (name) actions?.[name]?.play();
   }, [actions, props.type, names]);
+
+  const r = props.rotation ?? [0, 0, 0];
+
+  const rot = new Euler(...props.rotation.map((e) => (e * Math.PI) / 180));
 
   return (
     <Suspense fallback={null}>
@@ -45,8 +46,9 @@ function Item(props: Item) {
         ref={ref}
         scale={props.scale}
         position={props.position}
-        rotation={props.rotation}
+        rotation={rot}
       >
+        <pointLight intensity={0.5} />
         <Interactive
           onSelect={() => {
             mutate({
@@ -124,11 +126,17 @@ function Reward(props: { infoBox?: string; giveReward: boolean }) {
 export function App() {
   const { data: items } = useItems();
   const { data: inventory } = useInventory();
-  const itemsIDidntCollect = items?.filter(
-    (item) => !inventory?.find((i) => i.item_id === item.id)
-  );
+  const collectables = items?.filter((item) => item.type === "collectable");
+
+  const doIHaveAllCollectables =
+    inventory.length > 0 &&
+    collectables.length > 0 &&
+    collectables?.every((item) =>
+      inventory?.find((i) => i.item_id === item.id)
+    );
   const router = useRouter();
   const { data: quests } = useQuests();
+
   const activeQuest = quests?.find((q) => q.id === `${router.query.quest}`);
   return (
     <>
@@ -144,12 +152,10 @@ export function App() {
 
       <Canvas className="h-screen w-screen ">
         <XR>
-          <ambientLight intensity={2} />
-          <directionalLight position={[0, 10, 0]} />
           {/* {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />} */}
           <Reward
             infoBox={activeQuest?.infobox}
-            giveReward={itemsIDidntCollect.length === 0}
+            giveReward={doIHaveAllCollectables}
           />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
@@ -163,12 +169,16 @@ export function App() {
             modelLeft="/model-left.glb"
             modelRight="/model-right.glb"
           />
-          {itemsIDidntCollect
+          {items
             ?.filter((obj) => {
               if (obj.required.length === 0) return true;
               return obj.required.every((req) =>
                 inventory?.find((i) => i.item_id === req)
               );
+            })
+            .filter((obj) => {
+              if (inventory?.find((i) => i.item_id === obj.id)) return false;
+              return true;
             })
             ?.map((item) => (
               <Item key={item.id} {...item} />
