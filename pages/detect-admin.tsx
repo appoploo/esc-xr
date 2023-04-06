@@ -97,10 +97,8 @@ export default function Page() {
         onSubmit={(e) => {
           e.preventDefault();
           const quest = e.currentTarget.quest.value;
-          const label = e.currentTarget.label.value;
           updateQuest(quest, {
             detect: searchList,
-            detect_label: label,
           })
             .then(() => {
               toast.success("Updated quest");
@@ -113,7 +111,7 @@ export default function Page() {
       >
         <div
           className={clsx("grid gap-4", {
-            "grid-cols-2": quest,
+            "grid-cols-1": quest,
           })}
         >
           <div>
@@ -136,19 +134,6 @@ export default function Page() {
               ))}
             </select>
           </div>
-          {quest && (
-            <div className="w-full">
-              <label htmlFor="" className="label-text ">
-                Label
-              </label>
-              <input
-                required
-                name="label"
-                type="text"
-                className="input-bordered input input-sm w-full "
-              />
-            </div>
-          )}
         </div>
         <div className="inline-flex  w-screen gap-4 overflow-auto">
           {searchList.map((item, idx) => (

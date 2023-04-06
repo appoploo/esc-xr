@@ -5,6 +5,7 @@ export function InfoModal(props: { inRadius: boolean }) {
   const { data: games } = useQuests();
   const router = useRouter();
   const activeQuest = games?.find((g) => g.id === router.query.quest);
+  console.log(activeQuest);
   return (
     <div>
       <input type="checkbox" id="my-modal" className="modal-toggle" />

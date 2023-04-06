@@ -125,6 +125,16 @@ export function Menu(
                 })}
               >
                 {obj}
+                <span className="ml-2 text-xs text-gray-400">
+                  (
+                  {
+                    quests.filter(
+                      (obj2) =>
+                        obj2.group === obj && isQuestDone(obj2.id ?? "-")
+                    ).length
+                  }
+                  /{quests.filter((obj2) => obj2.group === obj).length})
+                </span>
               </button>
             ))}
           </div>

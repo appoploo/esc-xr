@@ -163,7 +163,7 @@ export default function Page(props: User) {
           </div>
         </div>
       ) : (
-        <h1 className="fixed top-0 grid w-screen  justify-center  bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
+        <h1 className="fixed top-0 grid w-screen  justify-center  bg-black bg-opacity-60 p-4 text-2xl font-bold text-white">
           <span>{activeQuest?.info_wr}</span>
           <span className=" mt-2 text-sm">
             χρόνος που απομένει: {count} δευτερόλεπτα
