@@ -109,6 +109,8 @@ export default function Page(props: User) {
     });
   }, [activeQuest]);
 
+  const inRadius = distance < Number(activeQuest?.radius ?? 20);
+
   return (
     <div className="relative h-screen w-screen  ">
       <Map
@@ -144,7 +146,7 @@ export default function Page(props: User) {
         </div>
 
         <div className="fixed bottom-0 -z-50  grid h-fit w-screen grid-cols-[1fr_56px_56px_56px] flex-wrap justify-end gap-0 p-4">
-          <Action {...(activeQuest as Quest)} />
+          {inRadius ? <Action {...(activeQuest as Quest)} /> : <div />}
           {activeQuest ? (
             <label
               role="button"
@@ -193,7 +195,7 @@ export default function Page(props: User) {
         </div>
         <Menu {...props} />
         <LiteratureModal />
-        <InfoModal />
+        <InfoModal inRadius={inRadius} />
       </div>
     </div>
   );
