@@ -73,7 +73,12 @@ export default function Page(props: User) {
           type: "achievement",
         })
           .then(() => router.push("/insitu"))
-          .then(() => toast.success(activeQuest.infobox));
+          .then(() =>
+            toast.info(activeQuest.infobox, {
+              autoClose: false,
+              closeOnClick: true,
+            })
+          );
       }
       img.dispose();
     }, 1000);
