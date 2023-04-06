@@ -3,16 +3,15 @@ import getDistance from "geolib/es/getDistance";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGeolocated } from "react-geolocated";
-import Map, { Layer, MapRef, Marker, Source } from "react-map-gl";
+import { MapRef } from "react-map-gl";
 import { toast } from "react-toastify";
 import { InfoModal } from "../components/infoModal";
 import { Menu } from "../components/menu";
 import { useQuests } from "../lib/quests/queries";
 import { Quest } from "../lib/quests/types";
 import { User } from "../lib/users/types";
-import { formatDistance } from "../lib/utils";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 
 const pk = `pk.eyJ1IjoiZmFyYW5kb3VyaXNwIiwiYSI6ImNsOTZ3dzhpczBzNHg0MHFxZ211dGN3OGcifQ.wG1mCl8Bl26T-w2zFwYK8g`;
@@ -97,6 +96,7 @@ export default function Page(props: User) {
   };
   // ref for Map
   const mapRef = useRef<MapRef>(null);
+  const [outdoor, setOutDoor] = useState(false);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -108,33 +108,19 @@ export default function Page(props: User) {
   }, [activeQuest]);
 
   return (
-    <div className="relative h-screen w-screen  ">
-      <Map
-        ref={mapRef}
-        mapboxAccessToken={pk}
-        mapStyle="mapbox://styles/mapbox/streets-v9"
-      >
-        {activeQuest && (
-          <Source id="my-data" type="geojson" data={geojson as any}>
-            {/* @ts-ignore */}
-            <Layer {...layerStyle} />
-          </Source>
-        )}
-
-        <Marker
-          anchor="top"
-          latitude={coords?.latitude ?? 0}
-          longitude={coords?.longitude ?? 0}
-        ></Marker>
-      </Map>
+    <div
+      className="relative h-screen w-screen bg-white  "
+      style={{
+        backgroundImage: `url(/images/ee.jpg)`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
       <div className="pointer-events-none fixed top-0  left-0 z-50 h-screen   w-screen ">
         <div className="absolute top-0 flex  w-screen  ">
           <div className="stroke  container relative  mx-auto   w-full border-dashed border-black bg-black bg-opacity-50 p-2  pb-0  text-4xl font-bold text-white drop-shadow-2xl md:w-96 ">
             {activeQuest ? (
-              <>
-                <Head1>{activeQuest?.name} &nbsp;</Head1>
-                <Head1>{formatDistance(distance)} away</Head1>
-              </>
+              <Head1>{activeQuest?.name} &nbsp;</Head1>
             ) : (
               <Head1>Select quest from menu </Head1>
             )}

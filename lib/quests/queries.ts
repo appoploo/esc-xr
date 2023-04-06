@@ -6,7 +6,9 @@ import { Quest } from "./types";
 
 export function useQuests() {
   const router = useRouter();
-  const genericParam = router.pathname === "/insitu" ? "?generic=true" : "";
+  let genericParam = "";
+  const firstPath = router.pathname.split("/")[1];
+  if (firstPath === "generic") genericParam = "?generic=true";
   const { data, error } = useSWR<Quest[], AxiosError>(
     `/api/quests${genericParam}`,
     fetcher

@@ -16,15 +16,15 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { Sphere } from "../components/sphere";
-import useMutation from "../Hooks/useMutation";
-import { addItemToInventory, useInventory } from "../lib/inventory/queries";
-import { useItems } from "../lib/items/queries";
-import { Item } from "../lib/items/types";
-import { createE3, createV3 } from "../lib/leva";
-import { useQuests } from "../lib/quests/queries";
-import { accessLevel, withSessionSsr } from "../lib/withSession";
-import { useStore } from "../store";
+import { Sphere } from "../../components/sphere";
+import useMutation from "../../Hooks/useMutation";
+import { addItemToInventory, useInventory } from "../../lib/inventory/queries";
+import { useItems } from "../../lib/items/queries";
+import { Item } from "../../lib/items/types";
+import { createE3, createV3 } from "../../lib/leva";
+import { useQuests } from "../../lib/quests/queries";
+import { accessLevel, withSessionSsr } from "../../lib/withSession";
+import { useStore } from "../../store";
 
 function Item(props: Item) {
   const [mutate] = useMutation(addItemToInventory, ["/api/inventory"]);

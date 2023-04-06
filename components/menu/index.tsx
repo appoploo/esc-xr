@@ -1,24 +1,33 @@
 import axios from "axios";
 import clsx from "clsx";
+import { getDistance } from "geolib";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import useMutation from "../../Hooks/useMutation";
 import { useInventory } from "../../lib/inventory/queries";
 import { useQuests } from "../../lib/quests/queries";
 import { User } from "../../lib/users/types";
+import { formatDistance } from "../../lib/utils";
 
-export function Menu(props: User) {
+export function Menu(
+  props: User & {
+    coords?: GeolocationCoordinates;
+  }
+) {
   const { data: inventory } = useInventory();
   const { data: quests } = useQuests();
   const router = useRouter();
+  const groups = quests
+    ?.map((obj) => obj.group)
+    .filter((v, i, a) => a.indexOf(v) === i);
 
   const [reset] = useMutation(
     () => axios.post("/api/auth?type=reset"),
     ["/api/inventory"]
   );
 
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState<string | undefined>(undefined);
   const [item, setItem] = useState<"item" | "achievement">("item");
   const [drawer, setDrawer] = useState(false);
   const itemLength = inventory?.filter((obj) => obj.type === "item").length;
@@ -26,9 +35,34 @@ export function Menu(props: User) {
     (obj) => obj.type === "achievement"
   ).length;
 
+  useEffect(() => {
+    if (!filter) setFilter(groups?.[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groups]);
+
   const isQuestDone = (id: string) =>
     inventory.find((obj) => obj.expand?.quest_id?.id === id);
   const ref = useRef<HTMLInputElement>(null);
+  const { latitude, longitude } = props.coords ?? {
+    latitude: 0,
+    longitude: 0,
+  };
+
+  const distances = useMemo(
+    () =>
+      quests?.map((obj) => {
+        const distance = getDistance(
+          { latitude, longitude },
+          {
+            latitude: obj?.lat ?? 0,
+            longitude: obj?.lng ?? 0,
+          },
+          0.1
+        );
+        return { ...obj, distance };
+      }),
+    [latitude, longitude, quests]
+  );
   return (
     <div
       className={clsx("drawer z-50", {
@@ -77,43 +111,31 @@ export function Menu(props: User) {
 
           <label className="label-text text-xl font-bold">Quest</label>
           <div className="tabs">
-            <button
-              onClick={() => {
-                setFilter("all");
-              }}
-              className={clsx(" tab-bordered tab w-1/3", {
-                "tab-active": filter === "all",
-              })}
-            >
-              All
-            </button>
-            <button
-              onClick={() => {
-                setFilter("active");
-              }}
-              className={clsx(" tab-bordered tab w-1/3", {
-                "tab-active": filter === "active",
-              })}
-            >
-              Active
-            </button>
-            <button
-              onClick={() => {
-                setFilter("done");
-              }}
-              className={clsx(" tab-bordered tab w-1/3", {
-                "tab-active": filter === "done",
-              })}
-            >
-              Done
-            </button>
+            {groups.map((obj) => (
+              <button
+                key={obj}
+                onClick={() => {
+                  setFilter(obj);
+                }}
+                style={{
+                  width: `${100 / groups.length}%`,
+                }}
+                className={clsx(" tab-bordered tab ", {
+                  "tab-active": filter === obj,
+                })}
+              >
+                {obj}
+              </button>
+            ))}
           </div>
-          {quests
+          {distances
             ?.filter((obj) => {
-              if (filter === "all") return true;
-              if (filter === "active") return !isQuestDone(obj.id ?? "-");
-              if (filter === "done") return isQuestDone(obj.id ?? "-");
+              if (filter) {
+                return obj.group === filter;
+              }
+              return true;
             })
+
             .sort((a, b) => {
               if (isQuestDone(a.id ?? "-") && !isQuestDone(b.id ?? "-")) {
                 return 1;
@@ -121,11 +143,11 @@ export function Menu(props: User) {
               if (!isQuestDone(a.id ?? "-") && isQuestDone(b.id ?? "-")) {
                 return -1;
               }
-              return 0;
+              return a.distance - b.distance;
             })
             .map((obj) => (
               <div
-                className={clsx("btn h-fit", {
+                className={clsx("btn relative  h-fit ", {
                   "disabled opacity-60": isQuestDone(obj.id ?? "-"),
                   "border border-yellow-400 hover:border hover:border-yellow-400":
                     obj.id === router.query.quest,
@@ -134,20 +156,36 @@ export function Menu(props: User) {
               >
                 <Link
                   onClick={() => {
+                    if (isQuestDone(obj.id ?? "-")) return;
                     ref.current?.click();
                   }}
-                  className=" flex w-full items-center"
-                  href={`?quest=${obj.id}`}
-                >
-                  <div className="mr-auto">{obj.name}</div>
-                  {isQuestDone(obj.id ?? "-") && (
-                    <picture>
-                      <img
-                        alt="item"
-                        src="https://s2.svgbox.net/materialui.svg?ic=done&color=8f0"
-                      ></img>
-                    </picture>
+                  className={clsx(
+                    "grid w-full grid-cols-[1fr_15px] items-center ",
+                    {
+                      "cursor-not-allowed": isQuestDone(obj.id ?? "-"),
+                    }
                   )}
+                  href={`${router.pathname}?quest=${obj.id}`}
+                >
+                  <div className="h-full w-full text-left">
+                    {obj.name} &nbsp;
+                    <span className="text-xs text-gray-500">
+                      {!isNaN(obj.distance)
+                        ? formatDistance(obj.distance)
+                        : "-"}
+                    </span>
+                  </div>
+
+                  <picture
+                    className={clsx({
+                      "opacity-0": !isQuestDone(obj.id ?? "-"),
+                    })}
+                  >
+                    <img
+                      alt="item"
+                      src="https://s2.svgbox.net/materialui.svg?ic=done&color=8f0"
+                    ></img>
+                  </picture>
                 </Link>
               </div>
             ))}

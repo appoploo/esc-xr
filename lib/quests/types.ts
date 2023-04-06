@@ -14,4 +14,15 @@ export type Quest = {
   expand: any;
   outdoor?: boolean;
   sphere?: string;
+  distance?: number;
+  infobox?: string;
+  infobox_en?: string;
+  group?: string;
+  group_en?: string;
+  info_or?: string;
+  info_or_en?: string;
+  info_wr?: string;
+  info_wr_en?: string;
+  literature?: string;
+  literature_en?: string;
 };

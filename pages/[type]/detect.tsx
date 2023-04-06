@@ -7,11 +7,11 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useCounter, useInterval } from "usehooks-ts";
-import useMutation from "../Hooks/useMutation";
-import { addItemToInventory } from "../lib/inventory/queries";
-import { useQuests } from "../lib/quests/queries";
-import { User } from "../lib/users/types";
-import { accessLevel, withSessionSsr } from "../lib/withSession";
+import useMutation from "../../Hooks/useMutation";
+import { addItemToInventory } from "../../lib/inventory/queries";
+import { useQuests } from "../../lib/quests/queries";
+import { User } from "../../lib/users/types";
+import { accessLevel, withSessionSsr } from "../../lib/withSession";
 
 export default function Page(props: User) {
   useEffect(() => {
@@ -48,6 +48,7 @@ export default function Page(props: User) {
 
   const { count, setCount, increment, decrement, reset } = useCounter(-1);
   useInterval(decrement, count > 0 ? 1000 : null);
+  const path = router.pathname.split("/")[1];
   const predict = async (model: tf.GraphModel<tf.io.IOHandler>) => {
     if (!ref.current) return;
 
@@ -71,13 +72,12 @@ export default function Page(props: User) {
           quest_id: `${router.query.quest}`,
           type: "achievement",
         })
-          .then(() => router.push("/"))
-          .then(() => toast.success(`Μπράβο τα κατάφερες!`));
+          .then(() => router.push("/insitu"))
+          .then(() => toast.success(activeQuest.infobox));
       }
       img.dispose();
     }, 1000);
   };
-
   const loadModel = async () => {
     // tf load model weight and metadata
     const model = await tf.loadGraphModel(
@@ -144,7 +144,7 @@ export default function Page(props: User) {
           }}
           className="text-md z-50 mb-2 text-center  text-2xl font-bold text-white"
         >
-          {activeQuest?.description} &nbsp;
+          {activeQuest?.info_wr} &nbsp;
           <br />
           <progress
             value={count}
@@ -164,7 +164,7 @@ export default function Page(props: User) {
         </div>
       ) : (
         <h1 className="fixed top-0 grid w-screen  justify-center  bg-black bg-opacity-60 p-4 text-4xl font-bold text-white">
-          <span>{activeQuest?.description}</span>
+          <span>{activeQuest?.info_wr}</span>
           <span className=" mt-2 text-sm">
             χρόνος που απομένει: {count} δευτερόλεπτα
           </span>
