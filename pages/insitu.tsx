@@ -200,7 +200,7 @@ export default function Page(props: User) {
     </div>
   );
 }
-
+// change
 export const getServerSideProps: GetServerSideProps = withSessionSsr(
   async function getServerSideProps(ctx) {
     return accessLevel("user", ctx);
