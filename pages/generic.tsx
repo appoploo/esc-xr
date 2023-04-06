@@ -160,7 +160,7 @@ export default function Page(props: User) {
           </label>
         </div>
         <Menu {...props} />
-        <InfoModal />
+        <InfoModal inRadius={true} />
       </div>
     </div>
   );
