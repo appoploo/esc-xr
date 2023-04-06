@@ -14,14 +14,12 @@ import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
-import { Mesh, Vector3 } from "three";
+import { Mesh } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { Sphere } from "../../components/sphere";
 import useMutation from "../../Hooks/useMutation";
 import { addItemToInventory, useInventory } from "../../lib/inventory/queries";
 import { useItems } from "../../lib/items/queries";
 import { Item } from "../../lib/items/types";
-import { createE3, createV3 } from "../../lib/leva";
 import { useQuests } from "../../lib/quests/queries";
 import { accessLevel, withSessionSsr } from "../../lib/withSession";
 import { useStore } from "../../store";
@@ -41,14 +39,6 @@ function Item(props: Item) {
       actions?.[name]?.play();
   }, [actions, props.type, names]);
 
-  const v3 = createV3(store.item.position ?? [0, 0, 0]);
-  const e3 = createE3(store.item.rotation ?? [0, 0, 0]);
-  const scale = new Vector3(
-    store.item.scale ?? 1,
-    store.item.scale ?? 1,
-    store.item.scale ?? 1
-  );
-
   useFrame((three) => {
     const ray = three.raycaster.ray;
     // change position of ref same as raycaster
@@ -63,7 +53,6 @@ function Item(props: Item) {
       }
     }
   });
-  const router = useRouter();
   return (
     <Suspense fallback={null}>
       <mesh
@@ -121,7 +110,7 @@ function Reticle() {
   );
 }
 
-function Reward(props: { giveReward: boolean }) {
+function Reward(props: { infoBox?: string; giveReward: boolean }) {
   const xr = useXR();
   const router = useRouter();
 
@@ -134,10 +123,15 @@ function Reward(props: { giveReward: boolean }) {
         quest_id: `${router.query.quest}`,
         type: "achievement",
       })
-        .then(() => router.push("/"))
-        .then(() => toast("You collected all the items! 🎉"));
+        .then(() => router.push("/insitu"))
+        .then(() =>
+          toast.info(props.infoBox, {
+            autoClose: false,
+            closeOnClick: true,
+          })
+        );
     });
-  }, [props.giveReward, xr.session, router, mutate]);
+  }, [props.giveReward, props.infoBox, xr.session, router, mutate]);
   return null;
 }
 
@@ -164,9 +158,13 @@ export function App() {
 
       <Canvas className="h-screen w-screen ">
         <XR>
-          <Sphere />
+          <ambientLight intensity={2} />
+          <directionalLight position={[0, 10, 0]} />
           {/* {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />} */}
-          <Reward giveReward={itemsIDidntCollect.length === 0} />
+          <Reward
+            infoBox={activeQuest?.infobox}
+            giveReward={itemsIDidntCollect.length === 0}
+          />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{

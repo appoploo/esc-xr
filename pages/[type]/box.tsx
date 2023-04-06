@@ -112,7 +112,7 @@ function Reticle() {
   );
 }
 
-function Reward(props: { giveReward: boolean }) {
+function Reward(props: { infoBox?: string; giveReward: boolean }) {
   const xr = useXR();
   const router = useRouter();
 
@@ -125,10 +125,15 @@ function Reward(props: { giveReward: boolean }) {
         quest_id: `${router.query.quest}`,
         type: "achievement",
       })
-        .then(() => router.push("/"))
-        .then(() => toast("You collected all the items! 🎉"));
+        .then(() => router.push("/insitu"))
+        .then(() =>
+          toast.info(props.infoBox, {
+            autoClose: false,
+            closeOnClick: true,
+          })
+        );
     });
-  }, [props.giveReward, xr.session, router, mutate]);
+  }, [props.giveReward, props.infoBox, xr.session, router, mutate]);
   return null;
 }
 
@@ -157,7 +162,12 @@ export function App() {
         {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
 
         <XR>
-          <Reward giveReward={inTheBox.length === items?.length - 1} />
+          <ambientLight intensity={2} />
+          <directionalLight position={[0, 10, 0]} />
+          <Reward
+            infoBox={activeQuest?.infobox}
+            giveReward={inTheBox.length === items?.length - 1}
+          />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{

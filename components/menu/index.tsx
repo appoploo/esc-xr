@@ -110,18 +110,15 @@ export function Menu(
           <div className="divider "></div>
 
           <label className="label-text text-xl font-bold">Quest</label>
-          <div className="tabs">
+          <div className="  w-full overflow-auto  whitespace-nowrap  p-2">
             {groups.map((obj) => (
               <button
                 key={obj}
                 onClick={() => {
                   setFilter(obj);
                 }}
-                style={{
-                  width: `${100 / groups.length}%`,
-                }}
-                className={clsx(" tab-bordered tab ", {
-                  "tab-active": filter === obj,
+                className={clsx(" tab inline-block   w-fit", {
+                  "tab-active border-b border-white": filter === obj,
                 })}
               >
                 {obj}
@@ -175,7 +172,11 @@ export function Menu(
                       "cursor-not-allowed": isQuestDone(obj.id ?? "-"),
                     }
                   )}
-                  href={`${router.pathname}?quest=${obj.id}`}
+                  href={
+                    isQuestDone(obj.id ?? "-")
+                      ? "#"
+                      : `${router.pathname}?quest=${obj.id}`
+                  }
                 >
                   <div className="h-full w-full text-left">
                     {obj.name} &nbsp;
@@ -202,7 +203,7 @@ export function Menu(
 
           <div className="divider"></div>
           <label className="label-text mb-4 text-xl font-bold">Inventory</label>
-          <div className="tabs mb-4">
+          <div className="tabs mb-4 inline">
             <button
               onClick={() => {
                 setItem("item");
