@@ -5,6 +5,7 @@ import { GetServerSideProps } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
+import { useGeolocated } from "react-geolocated";
 import { toast } from "react-toastify";
 import { updateQuest, useQuests } from "../lib/quests/queries";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
@@ -89,6 +90,23 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quest]);
 
+  const { coords } = useGeolocated({
+    positionOptions: {
+      enableHighAccuracy: false,
+    },
+    onError: (error) =>
+      toast.error("please activate GPS  in order to continue", {
+        position: "bottom-center",
+      }),
+    watchPosition: true,
+    userDecisionTimeout: 5000,
+  });
+  const { latitude, longitude } = coords ?? {
+    latitude: 0,
+    longitude: 0,
+  };
+  const [radius, setRadius] = useState(10);
+
   return (
     <div className="relative">
       <video width={224} height={224} ref={ref} className="h-screen w-screen" />
@@ -99,6 +117,9 @@ export default function Page() {
           const quest = e.currentTarget.quest.value;
           updateQuest(quest, {
             detect: searchList,
+            lat: latitude,
+            lng: longitude,
+            radius,
           })
             .then(() => {
               toast.success("Updated quest");
@@ -133,6 +154,26 @@ export default function Page() {
                 </option>
               ))}
             </select>
+            <select
+              required
+              defaultValue={radius}
+              onChange={(e) => {
+                setRadius(Number(e.target.value));
+              }}
+              name="radius"
+              className="select-bordered  select select-sm w-full"
+              id=""
+            >
+              <option value="-" disabled />
+              {[...Array(100)]?.map((quest, idx) => (
+                <option key={idx} value={idx}>
+                  {idx}m
+                </option>
+              ))}
+            </select>
+            <div className="text-xs">
+              latitude:{latitude} longitude:{longitude}
+            </div>
           </div>
         </div>
         <div className="inline-flex  w-screen gap-4 overflow-auto">
