@@ -30,9 +30,11 @@ export function Head1(props: { children: React.ReactNode }) {
 }
 
 function Action(props: Quest) {
+  const router = useRouter();
+
   return props.type ? (
     <Link
-      href={`/${props?.type ?? "detect"}?quest=${props?.id}`}
+      href={`${router.pathname}/${props?.type ?? "detect"}?quest=${props?.id}`}
       className={clsx(
         "pointer-events-auto mx-auto flex h-14 w-full  items-center justify-center border-none  bg-black  bg-opacity-70 text-lg font-bold text-white "
       )}

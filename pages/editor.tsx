@@ -4,13 +4,12 @@ import {
   Grid,
   OrbitControls,
   useAnimations,
-  useTexture,
 } from "@react-three/drei";
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Suspense, useEffect, useRef, useState } from "react";
-import { BackSide, Mesh, Vector3 } from "three";
+import { Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three-stdlib";
 import { Settings } from "../components/Settings";
 import { useItems } from "../lib/items/queries";
@@ -95,29 +94,6 @@ function Item(props: Item) {
         <primitive object={gltf.scene} />
       </mesh>
     </Suspense>
-  );
-}
-
-function Sphere(props: any) {
-  const meshRef = useRef<Mesh>(null);
-
-  useFrame(() => {
-    if (!meshRef.current) return;
-    meshRef.current.rotation.x += 0.001;
-    meshRef.current.rotation.y += 0.001;
-    meshRef.current.rotation.z += 0.001;
-  });
-  const texture = useTexture("/textures/aplha3.jpg");
-  return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[60, 32 * 6, 32 * 6]} />
-      <meshStandardMaterial
-        side={BackSide}
-        map={texture}
-        transparent
-        opacity={0.5}
-      />
-    </mesh>
   );
 }
 

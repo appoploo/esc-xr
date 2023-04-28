@@ -9,12 +9,12 @@ import {
 } from "@react-three/xr";
 import { Suspense, useEffect, useRef, useState } from "react";
 
-import { Box, useAnimations } from "@react-three/drei";
-import { Canvas, useLoader } from "@react-three/fiber";
+import { Box, useAnimations, useTexture } from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
-import { Euler, Mesh } from "three";
+import { BackSide, Euler, Mesh } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import useMutation from "../../Hooks/useMutation";
 import { addItemToInventory, useInventory } from "../../lib/inventory/queries";
@@ -122,6 +122,28 @@ function Reward(props: { infoBox?: string; giveReward: boolean }) {
   }, [props.giveReward, props.infoBox, xr.session, router, mutate]);
   return null;
 }
+function Sphere(props: any) {
+  const meshRef = useRef<Mesh>(null);
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    meshRef.current.rotation.x += 0.001;
+    meshRef.current.rotation.y += 0.001;
+    meshRef.current.rotation.z += 0.001;
+  });
+  const texture = useTexture("/textures/aplha3.jpg");
+  return (
+    <mesh ref={meshRef}>
+      <sphereGeometry args={[60, 32 * 6, 32 * 6]} />
+      <meshStandardMaterial
+        side={BackSide}
+        map={texture}
+        transparent
+        opacity={0.5}
+      />
+    </mesh>
+  );
+}
 
 export function App() {
   const { data: items } = useItems();
@@ -138,6 +160,8 @@ export function App() {
   const { data: quests } = useQuests();
 
   const activeQuest = quests?.find((q) => q.id === `${router.query.quest}`);
+
+  const isGeneric = router.query.type === "generic";
   return (
     <>
       <div className="fixed bottom-0 z-50   grid h-fit w-screen  p-4">
@@ -157,6 +181,7 @@ export function App() {
             infoBox={activeQuest?.infobox}
             giveReward={doIHaveAllCollectables}
           />
+          {isGeneric && <Sphere />}
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{
