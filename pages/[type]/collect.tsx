@@ -111,7 +111,7 @@ function Reward(props: { infoBox?: string; giveReward: boolean }) {
         quest_id: `${router.query.quest}`,
         type: "achievement",
       })
-        .then(() => router.push("/insitu"))
+        .then(() => router.push(`/${router.query.type}`))
         .then(() =>
           toast.info(props.infoBox, {
             autoClose: false,
