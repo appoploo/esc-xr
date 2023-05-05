@@ -128,7 +128,14 @@ export default function Page(props: User) {
             )}
           </div>
         </div>
-
+        <div className="container mx-auto grid h-full w-full place-items-center">
+          <div className="mx-auto grid  place-items-center p-4 text-2xl font-bold">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit.
+            Consequuntur accusantium, sequi tempore aliquid architecto enim
+            dignissimos autem, voluptates magni quos aperiam perferendis
+            cupiditate maxime obcaecati officiis libero eveniet in! Est.
+          </div>
+        </div>
         <div className="fixed bottom-0 -z-50  grid h-fit w-screen grid-cols-[1fr_56px_56px] flex-wrap justify-end gap-0 p-4">
           <Action {...(activeQuest as Quest)} />
           {activeQuest ? (
