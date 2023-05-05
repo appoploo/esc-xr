@@ -128,8 +128,8 @@ export default function Page(props: User) {
             )}
           </div>
         </div>
-        <div className="container mx-auto grid h-full w-full place-items-center">
-          <div className="mx-auto grid  place-items-center p-4 text-2xl font-bold">
+        <div className="container pointer-events-none  fixed mx-auto grid h-full w-full place-items-center">
+          <div className="pointer-events-none mx-auto  grid place-items-center p-4 text-2xl font-bold">
             Lorem ipsum dolor sit amet consectetur adipisicing elit.
             Consequuntur accusantium, sequi tempore aliquid architecto enim
             dignissimos autem, voluptates magni quos aperiam perferendis
