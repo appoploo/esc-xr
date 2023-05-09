@@ -8,9 +8,11 @@ export type Quest = {
   type?: "detect" | "collect" | "none";
   description?: string;
   radius?: number;
+  generic?: boolean;
   detect?: string[];
   detect_label?: string;
   image?: string;
+  required?: string[];
   expand: any;
   outdoor?: boolean;
   sphere?: string;

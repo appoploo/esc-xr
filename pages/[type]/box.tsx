@@ -18,7 +18,7 @@ import { Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Sphere } from "../../components/sphere";
 import useMutation from "../../Hooks/useMutation";
-import { addItemToInventory, useInventory } from "../../lib/inventory/queries";
+import { addItemToInventory } from "../../lib/inventory/queries";
 import { useItems } from "../../lib/items/queries";
 import { Item } from "../../lib/items/types";
 import { createE3, createV3 } from "../../lib/leva";
@@ -141,7 +141,6 @@ function Reward(props: { infoBox?: string; giveReward: boolean }) {
 
 export function App() {
   const { data: items } = useItems();
-  const { data: inventory } = useInventory();
 
   const [inTheBox, setInTheBox] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -161,9 +160,9 @@ export function App() {
       </div>
 
       <Canvas className="h-screen w-screen ">
-        {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
-
         <XR>
+          {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
+
           <Reward
             infoBox={activeQuest?.infobox}
             giveReward={inTheBox.length === items?.length - 1}

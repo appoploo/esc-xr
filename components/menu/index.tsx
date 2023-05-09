@@ -27,6 +27,7 @@ export function Menu(
     ["/api/inventory"]
   );
 
+  const activeQuest = quests?.find((obj) => obj.id === router.query.id);
   const [filter, setFilter] = useState<string | undefined>(undefined);
   const [item, setItem] = useState<"item" | "achievement">("item");
   const [drawer, setDrawer] = useState(false);
@@ -63,6 +64,7 @@ export function Menu(
       }),
     [latitude, longitude, quests]
   );
+
   return (
     <div
       className={clsx("drawer z-50", {
@@ -142,6 +144,10 @@ export function Menu(
               }
               return true;
             })
+            .filter((obj) => {
+              if (!obj.required) return true;
+              return obj.required.every((obj2) => isQuestDone(obj2));
+            })
 
             .sort((a, b) => {
               if (isQuestDone(a.id ?? "-") && !isQuestDone(b.id ?? "-")) {
@@ -180,11 +186,13 @@ export function Menu(
                 >
                   <div className="h-full w-full text-left">
                     {obj.name} &nbsp;
-                    <span className="text-xs text-gray-500">
-                      {!isNaN(obj.distance)
-                        ? formatDistance(obj.distance)
-                        : "-"}
-                    </span>
+                    {obj.lat !== 0 && (
+                      <span className="text-xs text-gray-500">
+                        {!isNaN(obj.distance)
+                          ? formatDistance(obj.distance)
+                          : "-"}
+                      </span>
+                    )}
                   </div>
 
                   <picture

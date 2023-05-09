@@ -5,7 +5,6 @@ import { Quest } from "./types";
 export async function getQuests(req: NextApiRequest, res: NextApiResponse) {
   const pb = await getPocketBase();
 
-  console.log();
   const records = await pb
     .collection("quests")
     .getFullList<Quest>(200 /* batch size */, {
@@ -14,7 +13,12 @@ export async function getQuests(req: NextApiRequest, res: NextApiResponse) {
       filter: `generic=${req.query.generic ? "true" : "false"}`,
     });
 
-  res.status(200).json(records);
+  res.status(200).json(
+    records.map((record) => ({
+      ...record,
+      sphere: `${process.env.PB_URL}/api/files/${record?.collectionId}/${record?.id}/${record.sphere}`,
+    }))
+  );
 }
 
 export default async function updateQuest(

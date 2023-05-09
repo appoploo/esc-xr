@@ -122,7 +122,8 @@ function Reward(props: { infoBox?: string; giveReward: boolean }) {
   }, [props.giveReward, props.infoBox, xr.session, router, mutate]);
   return null;
 }
-function Sphere(props: any) {
+
+export function Sphere(props: { sphere?: string }) {
   const meshRef = useRef<Mesh>(null);
 
   useFrame(() => {
@@ -131,7 +132,8 @@ function Sphere(props: any) {
     meshRef.current.rotation.y += 0.001;
     meshRef.current.rotation.z += 0.001;
   });
-  const texture = useTexture("/textures/aplha3.jpg");
+  const url = props?.sphere ?? "/textures/aplha3.jpg";
+  const texture = useTexture(url);
   return (
     <mesh ref={meshRef}>
       <sphereGeometry args={[60, 32 * 6, 32 * 6]} />
@@ -160,8 +162,6 @@ export function App() {
   const { data: quests } = useQuests();
 
   const activeQuest = quests?.find((q) => q.id === `${router.query.quest}`);
-
-  const isGeneric = router.query.type === "generic";
   return (
     <>
       <div className="fixed bottom-0 z-50   grid h-fit w-screen  p-4">
@@ -176,12 +176,12 @@ export function App() {
 
       <Canvas className="h-screen w-screen ">
         <XR>
-          {/* {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />} */}
+          {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
           <Reward
             infoBox={activeQuest?.infobox}
             giveReward={doIHaveAllCollectables}
           />
-          {isGeneric && <Sphere />}
+          {/* {isGeneric && <Sphere />} */}
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{
