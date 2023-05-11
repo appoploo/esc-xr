@@ -5,7 +5,7 @@ export function useSpeak() {
   const speak = (msg: string) => {
     const voice = new SpeechSynthesisUtterance();
     // @ts-ignore
-    console.log(window["responsiveVoice"]);
+    // console.log(window["responsiveVoice"]);
     // @ts-ignore
     // window["responsiveVoice"].speak
     // if (
