@@ -10,6 +10,7 @@ export type Quest = {
   radius?: number;
   generic?: boolean;
   detect?: string[];
+  help?: string;
   detect_label?: string;
   image?: string;
   required?: string[];

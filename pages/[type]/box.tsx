@@ -1,30 +1,47 @@
-import {
-  Controllers,
-  Hands,
-  Interactive,
-  useHitTest,
-  useXR,
-  XR,
-  XRButton,
-} from "@react-three/xr";
+import { Controllers, Interactive, useXR, XR, XRButton } from "@react-three/xr";
 import { Suspense, useEffect, useRef, useState } from "react";
 
 import { Box, useAnimations } from "@react-three/drei";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, extend, useFrame, useLoader } from "@react-three/fiber";
+import clsx from "clsx";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
-import { Mesh, Vector3 } from "three";
+import { Mesh, Sprite, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { Sphere } from "../../components/sphere";
 import useMutation from "../../Hooks/useMutation";
 import { addItemToInventory } from "../../lib/inventory/queries";
 import { useItems } from "../../lib/items/queries";
 import { Item } from "../../lib/items/types";
 import { createE3, createV3 } from "../../lib/leva";
 import { useQuests } from "../../lib/quests/queries";
+import { User } from "../../lib/users/types";
 import { accessLevel, withSessionSsr } from "../../lib/withSession";
 import { useStore } from "../../store";
+import { Sphere } from "./collect";
+
+// You must extend with the objects you're going to use in the scene.
+extend({ Sprite });
+
+function FixedSprite() {
+  useFrame(({ viewport, camera }) => {
+    const fixedPosition = [
+      viewport.width / 2 - 1,
+      viewport.height / 2 - 1,
+      -camera.position.z + 1,
+    ] as [number, number, number];
+    ref.current?.position.set(...fixedPosition);
+  });
+
+  // We want the sprite to be fixed in the corner of the screen, let's say top right.
+  // Change these coordinates to position the sprite elsewhere.
+  const ref = useRef<Sprite>(null);
+  return (
+    <sprite ref={ref}>
+      <spriteMaterial attach="material" color="hotpink" />
+    </sprite>
+  );
+}
 
 function Item(
   props: Item & {
@@ -44,7 +61,7 @@ function Item(
     if (name && ["box", "default"].includes(props.type))
       actions?.[name]?.play();
   }, [actions, props.type, names]);
-
+  const xr = useXR();
   const v3 = createV3(store.item.position ?? [0, 0, 0]);
   const e3 = createE3(store.item.rotation ?? [0, 0, 0]);
   const scale = new Vector3(
@@ -93,27 +110,6 @@ function Item(
   );
 }
 
-function Reticle() {
-  const gltf = useLoader(GLTFLoader, "/3d/reticle.gltf");
-  const ref = useRef<Mesh>(null);
-
-  useHitTest((hit) => {
-    if (!ref.current) return;
-    hit.decompose(
-      ref.current.position,
-      // @ts-ignore
-      ref.current.rotation,
-      ref.current.scale
-    );
-  });
-
-  return (
-    <Suspense fallback={null}>
-      <primitive ref={ref} object={gltf.scene} />
-    </Suspense>
-  );
-}
-
 function Reward(props: { infoBox?: string; giveReward: boolean }) {
   const xr = useXR();
   const router = useRouter();
@@ -127,7 +123,7 @@ function Reward(props: { infoBox?: string; giveReward: boolean }) {
         quest_id: `${router.query.quest}`,
         type: "achievement",
       })
-        .then(() => router.push("/insitu"))
+        .then(() => router.push(`/${router.query.type}`))
         .then(() =>
           toast.info(props.infoBox, {
             autoClose: false,
@@ -139,7 +135,7 @@ function Reward(props: { infoBox?: string; giveReward: boolean }) {
   return null;
 }
 
-export function App() {
+export default function Page(props: User) {
   const { data: items } = useItems();
 
   const [inTheBox, setInTheBox] = useState<string[]>([]);
@@ -147,25 +143,49 @@ export function App() {
   const router = useRouter();
   const { data: quests } = useQuests();
   const activeQuest = quests?.find((q) => q.id === `${router.query.quest}`);
+  const ref = useRef<HTMLInputElement>(null);
+  function setModal() {
+    if (!ref.current) return;
+    setTimeout(() => ref.current?.click(), 2000);
+  }
+  const [xr, setXr] = useState(false);
   return (
     <>
-      <div className="fixed bottom-0 z-50   grid h-fit w-screen  p-4">
+      <div className="fixed bottom-0 z-50  flex   h-fit w-screen  p-4">
         <XRButton
-          className="flex h-14 w-full items-center justify-center  border border-gray-700  bg-black  bg-opacity-70 text-lg font-bold text-white"
-          mode={"AR"}
           sessionInit={{
-            requiredFeatures: ["hit-test"],
+            domOverlay:
+              typeof document !== "undefined"
+                ? { root: document.body }
+                : undefined,
+            optionalFeatures: ["dom-overlay", "dom-overlay-for-handheld-ar"],
           }}
+          className={clsx(
+            {
+              hidden: xr,
+            },
+            "z-50 flex h-14 w-full items-center justify-center  border border-gray-700  bg-black  bg-opacity-70 text-lg font-bold text-white"
+          )}
+          mode={"AR"}
         ></XRButton>
       </div>
 
       <Canvas className="h-screen w-screen ">
-        <XR>
+        <XR
+          onSessionStart={(evt) => {
+            setXr(true);
+          }}
+          onSessionEnd={(evt) => {
+            setXr(false);
+          }}
+        >
           {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
 
           <Reward
             infoBox={activeQuest?.infobox}
-            giveReward={inTheBox.length === items?.length - 1}
+            giveReward={
+              inTheBox.length > 0 && inTheBox.length === items?.length - 1
+            }
           />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
@@ -174,18 +194,15 @@ export function App() {
               visible: true,
             }}
           />
-          <Hands
-            // Optional custom models per hand. Default is the Oculus hand model
-            modelLeft="/model-left.glb"
-            modelRight="/model-right.glb"
-          />
+
           {items
             ?.filter((m) => m.type === "box")
             ?.map((item) => (
               <group key={item.id}>
                 <ambientLight intensity={1} />
                 <Interactive
-                  onSelect={() => {
+                  onSelect={(t) => {
+                    setModal();
                     if (selected) setInTheBox([...inTheBox, selected]);
                   }}
                 >
@@ -202,6 +219,8 @@ export function App() {
             ?.map((item) => (
               <Interactive
                 onSelect={() => {
+                  setModal();
+
                   if (item.type !== "draggable") return;
                   setSelected(item.id === selected ? null : item.id);
                 }}
@@ -211,11 +230,33 @@ export function App() {
               </Interactive>
             ))}
 
-          <Reticle />
-
           <ambientLight intensity={0.5} />
         </XR>
       </Canvas>
+      <div>
+        <input
+          ref={ref}
+          type="checkbox"
+          id="my-modal3"
+          className="modal-toggle"
+        />
+        <div
+          className={clsx("modal", {
+            "modal-open": ref.current?.checked,
+          })}
+        >
+          <div className="modal-box">
+            <h3 className="text-lg font-bold">{activeQuest?.name}</h3>
+            <div className="divider"></div>
+            <p className="py-4">{activeQuest?.help}</p>
+            <div className="modal-action">
+              <label htmlFor="my-modal3" className="btn">
+                close
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
@@ -225,5 +266,3 @@ export const getServerSideProps: GetServerSideProps = withSessionSsr(
     return accessLevel("user", ctx);
   }
 );
-
-export default App;

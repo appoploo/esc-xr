@@ -144,10 +144,10 @@ export function Menu(
               }
               return true;
             })
-            .filter((obj) => {
-              if (!obj.required) return true;
-              return obj.required.every((obj2) => isQuestDone(obj2));
-            })
+            // .filter((obj) => {
+            //   if (!obj.required) return true;
+            //   return obj.required.every((obj2) => isQuestDone(obj2));
+            // })
 
             .sort((a, b) => {
               if (isQuestDone(a.id ?? "-") && !isQuestDone(b.id ?? "-")) {
@@ -164,6 +164,9 @@ export function Menu(
                   "disabled opacity-60": isQuestDone(obj.id ?? "-"),
                   "border border-yellow-400 hover:border hover:border-yellow-400":
                     obj.id === router.query.quest,
+                  "disabled border  opacity-20": !obj?.required?.every((obj2) =>
+                    isQuestDone(obj2)
+                  ),
                 })}
                 key={obj.id}
               >
