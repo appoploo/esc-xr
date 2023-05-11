@@ -6,10 +6,10 @@ export function useSpeak() {
     if (!msg) return;
     const locale =
       router.locale === "en"
-        ? "en-US"
+        ? "UK English Female"
         : router.locale === "el"
-        ? "el"
-        : "en-US";
+        ? "Greek Female"
+        : "UK English Female";
     // @ts-ignore
     // console.log(window["responsiveVoice"]);
     // @ts-ignore
