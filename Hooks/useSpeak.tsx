@@ -6,7 +6,8 @@ export function useSpeak() {
     const voice = new SpeechSynthesisUtterance();
     // @ts-ignore
     console.log(window["responsiveVoice"]);
-
+    // @ts-ignore
+    // window["responsiveVoice"].speak
     // if (
     //   typeof window === "undefined" &&
     //   typeof window["responsiveVoice"] === "undefined"
