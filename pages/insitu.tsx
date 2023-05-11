@@ -110,7 +110,6 @@ export default function Page(props: User) {
   }, [activeQuest]);
 
   const inRadius = distance < Number(activeQuest?.radius ?? 20);
-
   return (
     <div className="relative h-screen w-screen  ">
       <Map

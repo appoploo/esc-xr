@@ -157,7 +157,7 @@ export default function Page(props: User) {
       <div className="fixed bottom-0 z-50  flex   h-fit w-screen  p-4">
         <button
           onClick={() => {
-            speak("με τη τεχνιτη νόημοσυνη");
+            speak(activeQuest?.help);
           }}
         >
           asdasdasd

@@ -2,23 +2,23 @@ import { useRouter } from "next/router";
 
 export function useSpeak() {
   const router = useRouter();
-  const speak = (msg: string) => {
-    const voice = new SpeechSynthesisUtterance();
+  const speak = (msg?: string) => {
+    if (!msg) return;
+    const locale =
+      router.locale === "en"
+        ? "en-US"
+        : router.locale === "el"
+        ? "el"
+        : "en-US";
     // @ts-ignore
     // console.log(window["responsiveVoice"]);
     // @ts-ignore
-    // window["responsiveVoice"].speak
+    window["responsiveVoice"].speak(msg, locale);
     // if (
     //   typeof window === "undefined" &&
     //   typeof window["responsiveVoice"] === "undefined"
     // )
     //   return;
-    // const locale =
-    //   router.locale === "en"
-    //     ? "en-US"
-    //     : router.locale === "el"
-    //     ? "el"
-    //     : "en-US";
     // const v = speechSynthesis.getVoices()?.find((v) => v.lang === "el-GR");
     // if (!v) return;
     // voice.text = msg;
