@@ -1,12 +1,15 @@
+import { Canvas } from "@react-three/fiber";
+import { startSession, stopSession, XR } from "@react-three/xr";
 import clsx from "clsx";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
+import { useState } from "react";
+import { Actions } from "../components/actions";
 import { InfoModal } from "../components/infoModal";
 import { Menu } from "../components/menu";
+import { Sphere } from "../components/sphere";
 import { useQuests } from "../lib/quests/queries";
-import { Quest } from "../lib/quests/types";
 import { User } from "../lib/users/types";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 
@@ -23,46 +26,34 @@ export function Head1(props: { children: React.ReactNode }) {
   );
 }
 
-function Action(props: Quest) {
-  const router = useRouter();
-
-  return props.type ? (
-    <Link
-      href={`${router.pathname}/${props?.type ?? "detect"}?quest=${props?.id}`}
-      className={clsx(
-        "pointer-events-auto mx-auto flex h-14 w-full  items-center justify-center border-none  bg-black  bg-opacity-70 text-lg font-bold text-white "
-      )}
-    >
-      {props?.type}
-    </Link>
-  ) : (
-    <div />
-  );
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default function Page(props: User) {
   const { data: games } = useQuests();
-
   const router = useRouter();
+  const [xr, setXr] = useState(false);
   const activeQuest = games?.find((g) => g.id === router.query.quest);
+  const [canvasLoaded, setCanvasLoaded] = useState(false);
 
   return (
-    <>
+    <div className="relative overflow-hidden">
       <Head>
         <title>Quests</title>
       </Head>
 
-      <div
-        className="relative h-screen w-screen bg-white  "
-        style={{
-          backgroundImage: `url(/images/ee.jpg)`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="pointer-events-none fixed top-0  left-0 z-50 h-screen   w-screen ">
-          <div className="absolute top-0 flex  w-screen  ">
-            <div className="stroke  container relative  mx-auto   w-full border-dashed border-black bg-black bg-opacity-50 p-2  pb-0  text-4xl font-bold text-white drop-shadow-2xl md:w-96 ">
+      {!xr ? (
+        <div
+          className={"relative h-screen w-screen bg-white"}
+          style={{
+            backgroundImage: `url(/images/ee.jpg)`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        >
+          <div className=" sticky  top-0 flex w-screen  ">
+            <div className="stroke mx-auto w-full bg-black bg-opacity-50 p-2  pb-0  text-xl font-bold text-white drop-shadow-2xl">
               {activeQuest ? (
                 <Head1>{activeQuest?.name} &nbsp;</Head1>
               ) : (
@@ -70,48 +61,60 @@ export default function Page(props: User) {
               )}
             </div>
           </div>
-          <div className=" pointer-events-none fixed    mx-auto grid h-full w-full place-items-center ">
-            <div className=" container pointer-events-none mx-auto  grid place-items-center p-4 text-2xl font-bold">
-              {activeQuest?.literature}
-            </div>
+          <div className="container mx-auto mt-20  h-full  p-4 text-lg font-bold">
+            <div className="mx-auto flex">{activeQuest?.literature}</div>
           </div>
-          <div className="fixed bottom-0 -z-50  grid h-fit w-screen grid-cols-[1fr_56px_56px] flex-wrap justify-end gap-0 p-4">
-            <Action {...(activeQuest as Quest)} />
-            {activeQuest ? (
-              <label
-                role="button"
-                htmlFor="my-modal"
-                className=" pointer-events-auto grid "
-              >
-                <picture className="block h-14 w-14 border-l border-white border-opacity-60  bg-black bg-opacity-70 p-3">
-                  <img
-                    className="hf-full w-full"
-                    src="https://s2.svgbox.net/octicons.svg?ic=info&color=fff"
-                    alt=""
-                  />
-                </picture>
-              </label>
-            ) : (
-              <div />
-            )}
-            <label
-              role="button"
-              htmlFor="my-drawer"
-              className=" pointer-events-auto "
-            >
-              <picture className="block h-14 w-14 border-l border-white border-opacity-60  bg-black bg-opacity-70 p-3">
-                <img
-                  src="https://s2.svgbox.net/hero-outline.svg?ic=menu&color=fff"
-                  alt=""
-                />
-              </picture>
-            </label>
-          </div>
-          <Menu {...props} />
-          <InfoModal inRadius={true} />
         </div>
+      ) : (
+        <div className="z-50 h-screen w-screen">
+          <Canvas className="z-50 h-screen w-screen">
+            <XR onSessionStart={alert}>
+              {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
+              {/* <Box args={[1, 1, 1]} position={[0, 0, -5]} /> */}
+              <ambientLight intensity={0.5} />
+            </XR>
+          </Canvas>
+        </div>
+      )}
+      <div className="pointer-events-none fixed top-0 z-50 h-screen w-screen">
+        <Actions>
+          {activeQuest && (
+            <button
+              onClick={() => {
+                Promise.resolve()
+                  .then(() => {
+                    setXr(!xr);
+                  })
+                  .then(() => sleep(500))
+
+                  .then(() => {
+                    if (xr) stopSession();
+                    else
+                      startSession("immersive-ar", {
+                        domOverlay:
+                          typeof document !== "undefined"
+                            ? { root: document.body }
+                            : undefined,
+                        optionalFeatures: [
+                          "dom-overlay",
+                          "dom-overlay-for-handheld-ar",
+                        ],
+                      });
+                  });
+              }}
+              className={clsx(
+                "flex h-14  w-full items-center justify-center  border border-gray-700  bg-black  bg-opacity-70 text-lg font-bold text-white"
+              )}
+            >
+              {!xr ? "Play" : "Exit"}
+            </button>
+          )}
+        </Actions>
+        <Menu {...props} />
       </div>
-    </>
+
+      <InfoModal inRadius={true} />
+    </div>
   );
 }
 
