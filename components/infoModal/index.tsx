@@ -1,17 +1,12 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { useSpeak } from "../../Hooks/useSpeak";
 import { useQuests } from "../../lib/quests/queries";
 
 export function InfoModal(props: { inRadius: boolean }) {
   const { data: games } = useQuests();
   const router = useRouter();
   const activeQuest = games?.find((g) => g.id === router.query.quest);
-  const speak = useSpeak();
   const text = props.inRadius ? activeQuest?.info_wr : activeQuest?.info_or;
-  useEffect(() => {
-    if (text) speak(text);
-  }, [text, speak]);
+
   return (
     <div>
       <input type="checkbox" id="my-modal" className="modal-toggle" />

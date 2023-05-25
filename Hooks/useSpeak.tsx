@@ -13,7 +13,7 @@ export function useSpeak() {
     // @ts-ignore
     // console.log(window["responsiveVoice"]);
     // @ts-ignore
-    window["responsiveVoice"].speak(msg, locale);
+    window["responsiveVoice"]?.speak?.(msg, locale);
     // if (
     //   typeof window === "undefined" &&
     //   typeof window["responsiveVoice"] === "undefined"

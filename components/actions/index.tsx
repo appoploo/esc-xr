@@ -1,17 +1,21 @@
 import clsx from "clsx";
 import { useRouter } from "next/router";
+import { useSpeak } from "../../Hooks/useSpeak";
 import { useQuests } from "../../lib/quests/queries";
 
 export function Actions(props: {
   children?: React.ReactNode;
   className?: string;
+  inRadius?: boolean;
 }) {
   const router = useRouter();
 
   const { data: games } = useQuests();
 
   const activeQuest = games?.find((g) => g.id === router.query.quest);
+  const speak = useSpeak();
 
+  const text = props.inRadius ? activeQuest?.info_wr : activeQuest?.info_or;
   return (
     <>
       <div
@@ -23,6 +27,7 @@ export function Actions(props: {
         <div className="w-full ">{props?.children}</div>
         {activeQuest && (
           <label
+            onClick={() => speak(text)}
             role="button"
             htmlFor="my-modal"
             className="pointer-events-auto w-fit border border-gray-700 bg-black"
@@ -38,6 +43,7 @@ export function Actions(props: {
         )}
         {activeQuest && (
           <label
+            onClick={() => speak(text)}
             role="button"
             htmlFor="my-modal"
             className="pointer-events-auto w-fit border border-gray-700 bg-black"

@@ -1,14 +1,13 @@
-import { Canvas } from "@react-three/fiber";
-import { startSession, stopSession, XR } from "@react-three/xr";
+import { startSession, stopSession } from "@react-three/xr";
 import clsx from "clsx";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Actions } from "../components/actions";
+import { CollectGame } from "../components/collectGame";
 import { InfoModal } from "../components/infoModal";
 import { Menu } from "../components/menu";
-import { Sphere } from "../components/sphere";
 import { useQuests } from "../lib/quests/queries";
 import { User } from "../lib/users/types";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
@@ -35,7 +34,6 @@ export default function Page(props: User) {
   const router = useRouter();
   const [xr, setXr] = useState(false);
   const activeQuest = games?.find((g) => g.id === router.query.quest);
-  const [canvasLoaded, setCanvasLoaded] = useState(false);
 
   return (
     <div className="relative overflow-hidden">
@@ -67,22 +65,17 @@ export default function Page(props: User) {
         </div>
       ) : (
         <div className="z-50 h-screen w-screen">
-          <Canvas className="z-50 h-screen w-screen">
-            <XR onSessionStart={alert}>
-              {activeQuest?.sphere && <Sphere sphere={activeQuest?.sphere} />}
-              {/* <Box args={[1, 1, 1]} position={[0, 0, -5]} /> */}
-              <ambientLight intensity={0.5} />
-            </XR>
-          </Canvas>
+          <CollectGame />
         </div>
       )}
       <div className="pointer-events-none fixed top-0 z-50 h-screen w-screen">
-        <Actions>
+        <Actions inRadius>
           {activeQuest && (
             <button
               onClick={() => {
                 Promise.resolve()
                   .then(() => {
+                    if (xr) router.replace("/generic");
                     setXr(!xr);
                   })
                   .then(() => sleep(500))

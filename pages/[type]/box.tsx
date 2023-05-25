@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 import { Mesh, Sprite, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import useMutation from "../../Hooks/useMutation";
-import { useSpeak } from "../../Hooks/useSpeak";
 import { addItemToInventory } from "../../lib/inventory/queries";
 import { useItems } from "../../lib/items/queries";
 import { Item } from "../../lib/items/types";
@@ -150,18 +149,9 @@ export default function Page(props: User) {
     setTimeout(() => ref.current?.click(), 2000);
   }
   const [xr, setXr] = useState(false);
-  const speak = useSpeak();
-  const locale = router.locale;
   return (
     <>
       <div className="fixed bottom-0 z-50  flex   h-fit w-screen  p-4">
-        <button
-          onClick={() => {
-            speak(activeQuest?.help);
-          }}
-        >
-          asdasdasd
-        </button>
         <XRButton
           sessionInit={{
             domOverlay:
