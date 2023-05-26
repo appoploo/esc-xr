@@ -92,6 +92,7 @@ export default function Page(props: User) {
 
   useEffect(() => {
     if (!mapRef.current) return;
+    if (activeQuest?.lng === 0 || activeQuest?.lat === 0) return;
     mapRef.current.getMap().flyTo({
       center: [activeQuest?.lng ?? 0, activeQuest?.lat ?? 0],
       zoom: 15,
@@ -111,25 +112,31 @@ export default function Page(props: User) {
             mapboxAccessToken={pk}
             mapStyle="mapbox://styles/mapbox/streets-v9"
           >
-            {activeQuest && (
-              <Source id="my-data" type="geojson" data={geojson as any}>
-                {/* @ts-ignore */}
-                <Layer {...layerStyle} />
-              </Source>
-            )}
+            {activeQuest &&
+              activeQuest?.lng !== 0 &&
+              activeQuest?.lat !== 0 && (
+                <Source id="my-data" type="geojson" data={geojson as any}>
+                  {/* @ts-ignore */}
+                  <Layer {...layerStyle} />
+                </Source>
+              )}
 
-            <Marker
-              anchor="top"
-              latitude={coords?.latitude ?? 0}
-              longitude={coords?.longitude ?? 0}
-            ></Marker>
+            {coords?.latitude !== 0 && coords?.longitude !== 0 && (
+              <Marker
+                anchor="top"
+                latitude={coords?.latitude ?? 0}
+                longitude={coords?.longitude ?? 0}
+              ></Marker>
+            )}
           </Map>
           <div className="pointer-events-none absolute top-0 flex  w-screen  ">
             <div className="stroke  container relative  mx-auto   w-full border-dashed border-black bg-black bg-opacity-50 p-2  pb-0  text-4xl font-bold text-white drop-shadow-2xl md:w-96 ">
               {activeQuest ? (
                 <>
                   <Head1>{activeQuest?.name} &nbsp;</Head1>
-                  <Head1>{formatDistance(distance)} away</Head1>
+                  {activeQuest.lng !== 0 && activeQuest.lat !== 0 && (
+                    <Head1>{formatDistance(distance)} away</Head1>
+                  )}
                 </>
               ) : (
                 <Head1>Select quest from menu </Head1>

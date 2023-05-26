@@ -109,6 +109,7 @@ export function BoxGame() {
   const { data: inventory } = useInventory();
 
   const allInsideTheBox =
+    inTheBox.length > 0 &&
     items?.filter((i) => i.type === "draggable").length === inTheBox.length;
 
   const doIHaveAchievement = inventory.find(
@@ -117,6 +118,7 @@ export function BoxGame() {
 
   useEffect(() => {
     if (!allInsideTheBox || doIHaveAchievement) return;
+    console.log("allInsideTheBox", allInsideTheBox);
     mutate({
       quest_id: `${router.query.quest}`,
       type: "achievement",
@@ -126,7 +128,7 @@ export function BoxGame() {
         closeOnClick: true,
       })
     );
-  }, [allInsideTheBox, doIHaveAchievement]);
+  }, [allInsideTheBox, doIHaveAchievement, activeQuest?.infobox]);
   return (
     <Canvas className="h-screen w-screen ">
       <XR>

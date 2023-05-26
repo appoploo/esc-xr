@@ -99,7 +99,7 @@ export function Menu(
               </button>
             )}
 
-            {!props.test && (
+            {!props.admin && (
               <Link href="/detect-admin">
                 <button className="btn-sm btn w-full ">detect-admin</button>
               </Link>
@@ -142,7 +142,7 @@ export function Menu(
             })
             // .filter((obj) => {
             //   if (!obj.required) return true;
-            //   return obj.required.every((obj2) => isQuestDone(obj2));
+            //   return obj.required.every((obj2) => isQuFestDone(obj2));
             // })
 
             .sort((a, b) => {
@@ -178,6 +178,7 @@ export function Menu(
                     }
                   )}
                   href={
+                    !obj?.required?.every((obj2) => isQuestDone(obj2)) ||
                     isQuestDone(obj.id ?? "-")
                       ? "#"
                       : `${router.pathname}?quest=${obj.id}`
