@@ -10,6 +10,8 @@ import { toast } from "react-toastify";
 import { Actions } from "../components/actions";
 import { BoxGame } from "../components/boxGame";
 import { CollectGame } from "../components/collectGame";
+import { InfoModal } from "../components/infoModal";
+import { LiteratureModal } from "../components/literatureModal";
 import { Menu } from "../components/menu";
 import { useQuests } from "../lib/quests/queries";
 import { User } from "../lib/users/types";
@@ -186,6 +188,8 @@ export default function Page(props: User) {
           )}
         </Actions>
         <Menu coords={coords} {...props} />
+        <InfoModal inRadius={inRadius} />
+        <LiteratureModal />
       </div>
     </div>
   );

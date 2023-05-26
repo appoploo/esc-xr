@@ -16,6 +16,7 @@ export function Actions(props: {
   const speak = useSpeak();
 
   const text = props.inRadius ? activeQuest?.info_wr : activeQuest?.info_or;
+  const literature = activeQuest?.literature;
   return (
     <>
       <div
@@ -25,7 +26,7 @@ export function Actions(props: {
         )}
       >
         <div className="w-full ">{props?.children}</div>
-        {activeQuest && (
+        {text && (
           <label
             onClick={() => speak(text)}
             role="button"
@@ -41,11 +42,11 @@ export function Actions(props: {
             </picture>
           </label>
         )}
-        {activeQuest && (
+        {activeQuest?.literature && (
           <label
-            onClick={() => speak(text)}
+            onClick={() => speak(literature)}
             role="button"
-            htmlFor="my-modal"
+            htmlFor="my-modal-2"
             className="pointer-events-auto w-fit border border-gray-700 bg-black bg-opacity-70"
           >
             <picture className="grid h-14  w-14 place-items-center  bg-opacity-70">
