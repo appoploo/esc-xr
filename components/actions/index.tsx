@@ -30,7 +30,7 @@ export function Actions(props: {
             onClick={() => speak(text)}
             role="button"
             htmlFor="my-modal"
-            className="pointer-events-auto w-fit border border-gray-700 bg-black"
+            className="pointer-events-auto w-fit border border-gray-700 bg-black bg-opacity-70"
           >
             <picture className="block h-14 w-14    bg-opacity-70 p-3">
               <img
@@ -46,7 +46,7 @@ export function Actions(props: {
             onClick={() => speak(text)}
             role="button"
             htmlFor="my-modal"
-            className="pointer-events-auto w-fit border border-gray-700 bg-black"
+            className="pointer-events-auto w-fit border border-gray-700 bg-black bg-opacity-70"
           >
             <picture className="grid h-14  w-14 place-items-center  bg-opacity-70">
               <img
@@ -59,7 +59,7 @@ export function Actions(props: {
         <label
           role="button"
           htmlFor="my-drawer"
-          className="pointer-events-auto w-fit border border-gray-700 bg-black"
+          className="pointer-events-auto w-fit border border-gray-700 bg-black bg-opacity-70"
         >
           <picture className="block h-14 w-14  bg-opacity-70 p-3">
             <img

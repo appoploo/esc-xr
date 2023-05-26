@@ -7,9 +7,8 @@ import { Quest } from "./types";
 export function useQuests() {
   const router = useRouter();
   let genericParam = "";
-  const typeGeneric = router.query.type === "generic";
   const firstPath = router.pathname.split("/")[1];
-  if (firstPath === "generic" || typeGeneric) genericParam = "?generic=true";
+  if (firstPath === "generic") genericParam = "?generic=true";
   const { data, error } = useSWR<Quest[], AxiosError>(
     `/api/quests${genericParam}`,
     fetcher

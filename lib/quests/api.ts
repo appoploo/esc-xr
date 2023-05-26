@@ -16,7 +16,9 @@ export async function getQuests(req: NextApiRequest, res: NextApiResponse) {
   res.status(200).json(
     records.map((record) => ({
       ...record,
-      sphere: `${process.env.PB_URL}/api/files/${record?.collectionId}/${record?.id}/${record.sphere}`,
+      sphere: record.sphere
+        ? `${process.env.PB_URL}/api/files/${record?.collectionId}/${record?.id}/${record.sphere}`
+        : undefined,
     }))
   );
 }

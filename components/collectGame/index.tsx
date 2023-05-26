@@ -113,10 +113,6 @@ export function CollectGame() {
   );
   const [mutate] = useMutation(addItemToInventory, ["/api/inventory"]);
 
-  console.log({
-    doIHaveAchievement: Boolean(doIHaveAchievement),
-    doIHaveAllCollectables,
-  });
   useEffect(() => {
     if (Boolean(doIHaveAchievement) || !doIHaveAllCollectables) return;
     mutate({

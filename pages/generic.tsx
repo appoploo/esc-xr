@@ -59,9 +59,6 @@ export default function Page(props: User) {
               )}
             </div>
           </div>
-          <div className="container mx-auto mt-20  h-full  p-4 text-lg font-bold">
-            <div className="mx-auto flex">{activeQuest?.literature}</div>
-          </div>
         </div>
       ) : (
         <div className="z-50 h-screen w-screen">

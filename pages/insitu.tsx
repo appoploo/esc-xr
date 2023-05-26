@@ -1,17 +1,16 @@
+import { startSession, stopSession } from "@react-three/xr";
 import clsx from "clsx";
 import getDistance from "geolib/es/getDistance";
 import { GetServerSideProps } from "next";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGeolocated } from "react-geolocated";
 import Map, { Layer, MapRef, Marker, Source } from "react-map-gl";
 import { toast } from "react-toastify";
-import { InfoModal } from "../components/infoModal";
-import { LiteratureModal } from "../components/literatureModal";
+import { Actions } from "../components/actions";
+import { CollectGame } from "../components/collectGame";
 import { Menu } from "../components/menu";
 import { useQuests } from "../lib/quests/queries";
-import { Quest } from "../lib/quests/types";
 import { User } from "../lib/users/types";
 import { formatDistance } from "../lib/utils";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
@@ -31,20 +30,8 @@ export function Head1(props: { children: React.ReactNode }) {
   );
 }
 
-function Action(props: Quest) {
-  const router = useRouter();
-  return props.type ? (
-    <Link
-      href={`${router.pathname}/${props?.type ?? "detect"}?quest=${props?.id}`}
-      className={clsx(
-        "pointer-events-auto mx-auto flex h-14 w-full  items-center justify-center border-none  bg-black  bg-opacity-70 text-lg font-bold text-white "
-      )}
-    >
-      {props?.type}
-    </Link>
-  ) : (
-    <div />
-  );
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default function Page(props: User) {
@@ -110,91 +97,92 @@ export default function Page(props: User) {
   }, [activeQuest]);
 
   const inRadius = distance < Number(activeQuest?.radius ?? 20);
+  const [xr, setXr] = useState(false);
+
   return (
     <div className="relative h-screen w-screen  ">
-      <Map
-        ref={mapRef}
-        mapboxAccessToken={pk}
-        mapStyle="mapbox://styles/mapbox/streets-v9"
-      >
-        {activeQuest && (
-          <Source id="my-data" type="geojson" data={geojson as any}>
-            {/* @ts-ignore */}
-            <Layer {...layerStyle} />
-          </Source>
-        )}
-
-        <Marker
-          anchor="top"
-          latitude={coords?.latitude ?? 0}
-          longitude={coords?.longitude ?? 0}
-        ></Marker>
-      </Map>
-      <div className="pointer-events-none fixed top-0  left-0 z-50 h-screen   w-screen ">
-        <div className="absolute top-0 flex  w-screen  ">
-          <div className="stroke  container relative  mx-auto   w-full border-dashed border-black bg-black bg-opacity-50 p-2  pb-0  text-4xl font-bold text-white drop-shadow-2xl md:w-96 ">
-            {activeQuest ? (
-              <>
-                <Head1>{activeQuest?.name} &nbsp;</Head1>
-                <Head1>{formatDistance(distance)} away</Head1>
-              </>
-            ) : (
-              <Head1>Select quest from menu </Head1>
+      {!xr ? (
+        <div className=" h-screen w-screen">
+          <Map
+            ref={mapRef}
+            mapboxAccessToken={pk}
+            mapStyle="mapbox://styles/mapbox/streets-v9"
+          >
+            {activeQuest && (
+              <Source id="my-data" type="geojson" data={geojson as any}>
+                {/* @ts-ignore */}
+                <Layer {...layerStyle} />
+              </Source>
             )}
+
+            <Marker
+              anchor="top"
+              latitude={coords?.latitude ?? 0}
+              longitude={coords?.longitude ?? 0}
+            ></Marker>
+          </Map>
+          <div className="pointer-events-none absolute top-0 flex  w-screen  ">
+            <div className="stroke  container relative  mx-auto   w-full border-dashed border-black bg-black bg-opacity-50 p-2  pb-0  text-4xl font-bold text-white drop-shadow-2xl md:w-96 ">
+              {activeQuest ? (
+                <>
+                  <Head1>{activeQuest?.name} &nbsp;</Head1>
+                  <Head1>{formatDistance(distance)} away</Head1>
+                </>
+              ) : (
+                <Head1>Select quest from menu </Head1>
+              )}
+            </div>
           </div>
         </div>
+      ) : (
+        <CollectGame />
+      )}
 
-        <div className="fixed bottom-0 -z-50  grid h-fit w-screen grid-cols-[1fr_56px_56px_56px] flex-wrap justify-end gap-0 p-4">
-          {inRadius ? <Action {...(activeQuest as Quest)} /> : <div />}
-          {activeQuest ? (
-            <label
-              role="button"
-              htmlFor="my-modal"
-              className=" pointer-events-auto grid "
+      <div className="pointer-events-none fixed top-0 z-50 h-screen w-screen">
+        <Actions inRadius>
+          {activeQuest && (
+            <button
+              disabled={!inRadius}
+              onClick={() => {
+                if (activeQuest.type === "detect")
+                  return router.push(
+                    `${router.pathname}/detect?quest=${activeQuest?.id}`
+                  );
+
+                Promise.resolve()
+                  .then(() => {
+                    if (xr) router.replace("/generic");
+                    setXr(!xr);
+                  })
+                  .then(() => sleep(500))
+
+                  .then(() => {
+                    if (xr) stopSession();
+                    else
+                      startSession("immersive-ar", {
+                        domOverlay:
+                          typeof document !== "undefined"
+                            ? { root: document.body }
+                            : undefined,
+                        optionalFeatures: [
+                          "dom-overlay",
+                          "dom-overlay-for-handheld-ar",
+                        ],
+                      });
+                  });
+              }}
+              className={clsx(
+                "flex h-14 w-full items-center justify-center  border border-gray-700  bg-black  bg-opacity-70 text-lg font-bold text-white",
+                {
+                  hidden: !inRadius,
+                }
+              )}
             >
-              <picture className="block h-14 w-14 border-l border-white border-opacity-60  bg-black bg-opacity-70 p-3">
-                <img
-                  className="hf-full w-full"
-                  src="https://s2.svgbox.net/octicons.svg?ic=info&color=fff"
-                  alt=""
-                />
-              </picture>
-            </label>
-          ) : (
-            <div />
+              {!xr ? "Play" : "Exit"}
+            </button>
           )}
-          {activeQuest ? (
-            <label
-              role="button"
-              htmlFor="my-modal-2"
-              className=" pointer-events-auto "
-            >
-              <picture className=" flex h-14 w-14 items-center border-l border-white border-opacity-60  bg-black bg-opacity-70 p-3">
-                <img
-                  src="https://s2.svgbox.net/octicons.svg?ic=book&color=fff"
-                  alt=""
-                />
-              </picture>
-            </label>
-          ) : (
-            <div />
-          )}
-          <label
-            role="button"
-            htmlFor="my-drawer"
-            className=" pointer-events-auto "
-          >
-            <picture className="block h-14 w-14 border-l border-white border-opacity-60  bg-black bg-opacity-70 p-3">
-              <img
-                src="https://s2.svgbox.net/hero-outline.svg?ic=menu&color=fff"
-                alt=""
-              />
-            </picture>
-          </label>
-        </div>
+        </Actions>
         <Menu {...props} />
-        <LiteratureModal />
-        <InfoModal inRadius={inRadius} />
       </div>
     </div>
   );

@@ -115,7 +115,7 @@ export default function Page(props: User) {
             Ο χρόνος σου έληξε, Προσπάθησε ξανά! η Επεστρέψε στο κυρίως μενού
           </p>
           <div className="modal-action">
-            <Link href="/">
+            <Link href="/insitu">
               <label className="btn">Επεστρέψε!</label>
             </Link>
             <label
