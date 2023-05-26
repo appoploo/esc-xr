@@ -8,6 +8,7 @@ import { useGeolocated } from "react-geolocated";
 import Map, { Layer, MapRef, Marker, Source } from "react-map-gl";
 import { toast } from "react-toastify";
 import { Actions } from "../components/actions";
+import { BoxGame } from "../components/boxGame";
 import { CollectGame } from "../components/collectGame";
 import { Menu } from "../components/menu";
 import { useQuests } from "../lib/quests/queries";
@@ -134,9 +135,11 @@ export default function Page(props: User) {
             </div>
           </div>
         </div>
-      ) : (
+      ) : activeQuest?.type === "collect" ? (
         <CollectGame />
-      )}
+      ) : activeQuest?.type === "box" ? (
+        <BoxGame />
+      ) : null}
 
       <div className="pointer-events-none fixed top-0 z-50 h-screen w-screen">
         <Actions inRadius>
@@ -151,7 +154,7 @@ export default function Page(props: User) {
 
                 Promise.resolve()
                   .then(() => {
-                    if (xr) router.replace("/generic");
+                    if (xr) router.replace("/insitu");
                     setXr(!xr);
                   })
                   .then(() => sleep(500))
@@ -182,7 +185,7 @@ export default function Page(props: User) {
             </button>
           )}
         </Actions>
-        <Menu {...props} />
+        <Menu coords={coords} {...props} />
       </div>
     </div>
   );

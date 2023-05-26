@@ -3,7 +3,7 @@ import clsx from "clsx";
 import { getDistance } from "geolib";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useMutation from "../../Hooks/useMutation";
 import { useInventory } from "../../lib/inventory/queries";
 import { useQuests } from "../../lib/quests/queries";
@@ -49,21 +49,17 @@ export function Menu(
     longitude: 0,
   };
 
-  const distances = useMemo(
-    () =>
-      quests?.map((obj) => {
-        const distance = getDistance(
-          { latitude, longitude },
-          {
-            latitude: obj?.lat ?? 0,
-            longitude: obj?.lng ?? 0,
-          },
-          0.1
-        );
-        return { ...obj, distance };
-      }),
-    [latitude, longitude, quests]
-  );
+  const distances = quests?.map((obj) => {
+    const distance = getDistance(
+      { latitude, longitude },
+      {
+        latitude: obj?.lat ?? 0,
+        longitude: obj?.lng ?? 0,
+      },
+      0.1
+    );
+    return { ...obj, distance };
+  });
 
   return (
     <div

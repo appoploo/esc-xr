@@ -5,7 +5,7 @@ export type Quest = {
   name?: string;
   lat?: number;
   lng?: number;
-  type?: "detect" | "collect" | "none";
+  type?: "box" | "detect" | "collect" | "none";
   description?: string;
   radius?: number;
   generic?: boolean;

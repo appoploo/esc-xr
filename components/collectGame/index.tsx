@@ -11,7 +11,6 @@ import { addItemToInventory, useInventory } from "../../lib/inventory/queries";
 import { useItems } from "../../lib/items/queries";
 import { Item } from "../../lib/items/types";
 import { useQuests } from "../../lib/quests/queries";
-import { useStore } from "../../store";
 import { Sphere } from "../sphere";
 
 export function GameItem(
@@ -25,14 +24,6 @@ export function GameItem(
   const gltf = useLoader(GLTFLoader, props.src);
   const [selected, setSelected] = useState(false);
   const { actions, names } = useAnimations(gltf.animations, ref);
-  const store = useStore();
-
-  useEffect(() => {
-    if (!actions || !names) return;
-    const name = names?.at(0);
-    if (name && ["box", "default"].includes(props.type))
-      actions?.[name]?.play();
-  }, [actions, props.type, names]);
 
   useFrame((three) => {
     const ray = three.raycaster.ray;
@@ -67,13 +58,21 @@ export function GameItem(
 
         <Interactive
           onSelect={() => {
-            mutate({
-              name: props.name,
-              item_id: props.id,
-              type: "item",
-            });
+            const name = names?.at(0);
+            if (name) {
+              const animation = actions?.[name]?.play();
+              animation?.setLoop(1, 1);
+              actions?.[name]?.reset();
+            }
             if (!ref.current) return;
-            if (props.type === "collectable") ref.current.visible = false;
+            if (props.type === "collectable") {
+              ref.current.visible = false;
+              mutate({
+                name: props.name,
+                item_id: props.id,
+                type: "item",
+              });
+            }
             if (props.type === "default") setSelected(!selected);
           }}
         >

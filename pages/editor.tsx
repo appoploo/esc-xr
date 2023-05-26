@@ -8,7 +8,7 @@ import {
 import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { Mesh, Vector3 } from "three";
 import { GLTFLoader } from "three-stdlib";
 import { Settings } from "../components/Settings";
@@ -30,11 +30,11 @@ function Item(props: Item) {
   const [dragging, setDragging] = useState(false);
   const store = useStore();
 
-  useEffect(() => {
-    if (!actions || !names) return;
-    const name = names?.at(0);
-    if (name) actions?.[name]?.play();
-  }, [actions, names]);
+  // useEffect(() => {
+  //   if (!actions || !names) return;
+  //   const name = names?.at(0);
+  //   if (name) actions?.[name]?.play();
+  // }, [actions, names]);
 
   const v3 = createV3(store.item.position ?? [0, 0, 0]);
   const e3 = createE3(store.item.rotation ?? [0, 0, 0]);
@@ -67,6 +67,14 @@ function Item(props: Item) {
         scale={props.scale}
         position={props.position}
         rotation={props.rotation}
+        onClick={() => {
+          const name = names?.at(0);
+          if (name) {
+            const animation = actions?.[name]?.play();
+            animation?.setLoop(1, 1);
+            actions?.[name]?.reset();
+          }
+        }}
         onDoubleClick={() => {
           setDragging(!dragging);
           router.replace({

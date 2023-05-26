@@ -5,6 +5,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Actions } from "../components/actions";
+import { BoxGame } from "../components/boxGame";
 import { CollectGame } from "../components/collectGame";
 import { InfoModal } from "../components/infoModal";
 import { Menu } from "../components/menu";
@@ -60,11 +61,11 @@ export default function Page(props: User) {
             </div>
           </div>
         </div>
-      ) : (
-        <div className="z-50 h-screen w-screen">
-          <CollectGame />
-        </div>
-      )}
+      ) : activeQuest?.type === "collect" ? (
+        <CollectGame />
+      ) : activeQuest?.type === "box" ? (
+        <BoxGame />
+      ) : null}
       <div className="pointer-events-none fixed top-0 z-50 h-screen w-screen">
         <Actions inRadius>
           {activeQuest && (
