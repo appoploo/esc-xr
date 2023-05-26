@@ -16,6 +16,7 @@ export type Item = {
   rotation: Arr3;
   needsClick?: boolean;
   src: string;
+  models?: string[];
   type: string;
   thumbnail: string;
   scale: number;
@@ -24,5 +25,6 @@ export type Item = {
   expand: {
     model: Expand;
     thumbnail: Expand;
+    models: Expand[];
   };
 };

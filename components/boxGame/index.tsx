@@ -1,12 +1,15 @@
 import { Interactive, XR } from "@react-three/xr";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
-import { Box, useAnimations } from "@react-three/drei";
-import { Canvas, extend, useFrame, useLoader } from "@react-three/fiber";
+import { Box, useAnimations, useGLTF } from "@react-three/drei";
+import { Canvas, extend, useFrame } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
+import { mutate } from "swr";
 import { Mesh, Sprite } from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { SkeletonUtils } from "three-stdlib";
+import { useInventory } from "../../lib/inventory/queries";
 import { useItems } from "../../lib/items/queries";
 import { Item } from "../../lib/items/types";
 import { useQuests } from "../../lib/quests/queries";
@@ -16,21 +19,31 @@ import { Sphere } from "../sphere";
 // You must extend with the objects you're going to use in the scene.
 extend({ Sprite });
 
+// same url multiple GLTF instances
+function useGltfMemo(url: string) {
+  const gltf = useGLTF(url);
+  const scene = useMemo(() => SkeletonUtils.clone(gltf.scene), [gltf.scene]);
+  return { ...gltf, animations: [...gltf.animations], scene: scene };
+}
+
 function Item(
   props: Item & {
     selected?: boolean;
   }
 ) {
   const ref = useRef<Mesh>(null);
-  const gltf = useLoader(GLTFLoader, props.src);
+  const gltf = useGltfMemo(props.src);
   const { actions, names } = useAnimations(gltf.animations, ref);
 
   useEffect(() => {
     if (!actions || !names) return;
     const name = names?.at(0);
-    if (name && ["box", "default"].includes(props.type))
-      actions?.[name]?.play();
-  }, [actions, props.type, names]);
+    if (name) {
+      const animation = actions?.[name]?.play();
+      animation?.setLoop(1, 1);
+      animation?.halt(2.25);
+    }
+  }, [actions, names]);
 
   useFrame((three) => {
     const ray = three.raycaster.ray;
@@ -49,25 +62,38 @@ function Item(
 
   return (
     <Suspense fallback={null}>
-      <mesh
-        ref={ref}
-        scale={props.scale}
-        position={props.position}
-        rotation={props.rotation}
+      <Interactive
+        onSelect={() => {
+          if (props.type === "box") return;
+          const name = names?.at(0);
+          if (name) {
+            const animation = actions?.[name]?.play();
+            animation?.setLoop(1, 1);
+            if (!animation) return;
+            actions?.[name]?.reset();
+          }
+        }}
       >
-        <pointLight intensity={0.5} />
+        <mesh
+          ref={ref}
+          scale={props.scale}
+          position={props.position}
+          rotation={props.rotation}
+        >
+          <pointLight intensity={0.5} />
 
-        <Box position={[0, 0.7, 0]} args={[1.5, 1.5, 1.5]}>
-          {/* make it invisible */}
-          <meshBasicMaterial
-            visible={false}
-            attach="material"
-            transparent
-            opacity={0}
-          />
-        </Box>
-        <primitive object={gltf.scene} />
-      </mesh>
+          <Box position={[0, 0.7, 0]} args={[1.5, 1.5, 1.5]}>
+            {/* make it invisible */}
+            <meshBasicMaterial
+              visible={false}
+              attach="material"
+              transparent
+              opacity={0}
+            />
+          </Box>
+          <primitive object={gltf.scene} />
+        </mesh>
+      </Interactive>
     </Suspense>
   );
 }
@@ -80,6 +106,27 @@ export function BoxGame() {
   const router = useRouter();
   const { data: quests } = useQuests();
   const activeQuest = quests?.find((q) => q.id === `${router.query.quest}`);
+  const { data: inventory } = useInventory();
+
+  const allInsideTheBox =
+    items?.filter((i) => i.type === "draggable").length === inTheBox.length;
+
+  const doIHaveAchievement = inventory.find(
+    (i) => i.quest_id === activeQuest?.id && i.type === "achievement"
+  );
+
+  useEffect(() => {
+    if (!allInsideTheBox || doIHaveAchievement) return;
+    mutate({
+      quest_id: `${router.query.quest}`,
+      type: "achievement",
+    }).then(() =>
+      toast.success(`${activeQuest?.infobox}`, {
+        autoClose: false,
+        closeOnClick: true,
+      })
+    );
+  }, [allInsideTheBox, doIHaveAchievement]);
   return (
     <Canvas className="h-screen w-screen ">
       <XR>
@@ -87,18 +134,24 @@ export function BoxGame() {
 
         {items
           ?.filter((m) => m.type === "box")
-          ?.map((item) => (
-            <group key={item.id}>
-              <ambientLight intensity={1} />
-              <Interactive
-                onSelect={(t) => {
-                  if (selected) setInTheBox([...inTheBox, selected]);
-                }}
-              >
-                <Item {...item} />
-              </Interactive>
-            </group>
-          ))}
+          ?.map((item) => {
+            const insideTheBox = inTheBox.length;
+            const src =
+              insideTheBox > 0 ? item.models?.at(insideTheBox - 1) : item.src;
+            return (
+              <group key={item.id}>
+                <ambientLight intensity={1} />
+                <Interactive
+                  onSelect={(t) => {
+                    if (selected) setInTheBox([...inTheBox, selected]);
+                    setSelected(null);
+                  }}
+                >
+                  <Item {...item} src={src!} key={src} />
+                </Interactive>
+              </group>
+            );
+          })}
         {items
           ?.filter((mesh) => {
             if (mesh.type === "box") return null;

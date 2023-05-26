@@ -8,13 +8,17 @@ export async function getItems(req: NextApiRequest, res: NextApiResponse) {
     .collection("items")
     .getFullList<Item>(200 /* batch size */, {
       sort: "-created",
-      expand: "model",
+      expand: "model,models",
       filter: `quest="${req.query.quest}"`,
     });
   const data = records.map((record) => {
     return {
       ...record,
       src: `${process.env.PB_URL}/api/files/${record.expand.model?.collectionId}/${record.expand.model?.id}/${record.expand.model?.file}`,
+      models: record?.models?.map((model) => {
+        const curentModel = record.expand.models.find((m) => m.id === model);
+        return `${process.env.PB_URL}/api/files/${curentModel?.collectionId}/${curentModel?.id}/${curentModel?.file}`;
+      }),
     };
   });
 

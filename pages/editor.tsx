@@ -4,13 +4,14 @@ import {
   Grid,
   OrbitControls,
   useAnimations,
+  useGLTF,
 } from "@react-three/drei";
-import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useMemo, useRef, useState } from "react";
 import { Mesh, Vector3 } from "three";
-import { GLTFLoader } from "three-stdlib";
+import { SkeletonUtils } from "three-stdlib";
 import { Settings } from "../components/Settings";
 import { useItems } from "../lib/items/queries";
 import { Arr3, Item } from "../lib/items/types";
@@ -18,9 +19,16 @@ import { createE3, createV3 } from "../lib/leva";
 import { accessLevel, withSessionSsr } from "../lib/withSession";
 import { useStore } from "../store";
 
+// same url multiple GLTF instances
+function useGltfMemo(url: string) {
+  const gltf = useGLTF(url);
+  const scene = useMemo(() => SkeletonUtils.clone(gltf.scene), [gltf.scene]);
+  return { ...gltf, animations: [...gltf.animations], scene: scene };
+}
+
 function Item(props: Item) {
   const ref = useRef<Mesh>(null);
-  const gltf = useLoader(GLTFLoader, props.src);
+  const gltf = useGltfMemo(props.src);
   // const gltf = useGltfScene(props?.src ?? "");
 
   const { actions, names } = useAnimations(gltf.animations, ref);
@@ -72,6 +80,7 @@ function Item(props: Item) {
           if (name) {
             const animation = actions?.[name]?.play();
             animation?.setLoop(1, 1);
+
             actions?.[name]?.reset();
           }
         }}
