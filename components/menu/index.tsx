@@ -93,11 +93,9 @@ export function Menu(
               <button className="btn-sm btn w-full ">Logout</button>
             </form>
 
-            {props.admin && (
-              <button onClick={() => reset()} className="btn-sm btn w-full ">
-                Reset
-              </button>
-            )}
+            <button onClick={() => reset()} className="btn-sm btn w-full ">
+              Reset
+            </button>
 
             {props.admin && (
               <Link href="/detect-admin">
