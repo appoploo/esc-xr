@@ -99,7 +99,7 @@ export function Menu(
               </button>
             )}
 
-            {!props.admin && (
+            {props.admin && (
               <Link href="/detect-admin">
                 <button className="btn-sm btn w-full ">detect-admin</button>
               </Link>

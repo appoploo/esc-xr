@@ -57,7 +57,7 @@ export default function Page(props: User) {
               {activeQuest ? (
                 <Head1>{activeQuest?.name} &nbsp;</Head1>
               ) : (
-                <Head1>Select quest from menu </Head1>
+                <Head1>Eπιλέξτε διαδρομή από το menu </Head1>
               )}
             </div>
           </div>
