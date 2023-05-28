@@ -137,9 +137,9 @@ export function BoxGame() {
         {items
           ?.filter((m) => m.type === "box")
           ?.map((item) => {
-            const insideTheBox = inTheBox.length;
+            const insideTheBox = inTheBox?.length;
             const src =
-              insideTheBox > 0 ? item.models?.at(insideTheBox - 1) : item.src;
+              insideTheBox > 0 ? item?.models?.at(insideTheBox - 1) : item?.src;
             return (
               <group key={item.id}>
                 <ambientLight intensity={1} />
@@ -164,11 +164,11 @@ export function BoxGame() {
             <Interactive
               onSelect={() => {
                 if (item.type !== "draggable") return;
-                setSelected(item.id === selected ? null : item.id);
+                setSelected(item?.id === selected ? null : item?.id);
               }}
-              key={item.id}
+              key={item?.id}
             >
-              <Item selected={item.id === selected} {...item} />
+              <Item selected={item?.id === selected} {...item} />
             </Interactive>
           ))}
 
