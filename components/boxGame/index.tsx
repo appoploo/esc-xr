@@ -149,7 +149,7 @@ export function BoxGame() {
                     setSelected(null);
                   }}
                 >
-                  <Item {...item} src={src!} key={src} />
+                  <Item {...item} src={src ?? item.src} key={src} />
                 </Interactive>
               </group>
             );
