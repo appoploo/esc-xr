@@ -82,7 +82,7 @@ Will you manage to escape and become an Initiate or will you be trapped forever?
     ready_easy: `Easy`,
     ready_hard: `Hard`,
     ready_continue: `Continue`,
-    ready_title: `Scenario`,
+    ready_title: `Escape in Culture - Elefsina`,
     ui_inventory: `Inventory`,
     ui_time: `Time Remaining`,
     ui_play_the_game: `Play the game`,
@@ -184,7 +184,7 @@ an obstacle visible to the light of heaven.`,
     wordsearch_author_pp4: `Αθηνά Παπαδάκη. 2007. Με άλλα λόγια. Αθήνα: Ροές.`,
     learn_more: `Μάθε περισσότερα`,
     clock_pp5_title: `Ψάξε σε όλα τα ‘μήκη’ και τα ‘πλάτη’ του ποιήματος να βρεις τις λέξεις που ξεκινούν από το ίδιο γράμμα και συμπλήρώσε την Πυξίδα της Καρυάτιδας της Ελευσίνας`,
-    insitu: `AR insitu`s
+    insitu: `AR insitu`,
     generic: `AR generic`,
     clock_pp5_text: `Δεινή μου πάλη,
 nl για ν’ αποβάλλω τη χροιά της σκιάς
