@@ -48,8 +48,8 @@ type Key =
 
 const translations: Record<Locale, Record<Key, string>> = {
   en: {
-    insitu: "In Situ",
-    generic: "Generic",
+    insitu: "AR in situ",
+    generic: "AR generic",
     menu_play: "Play",
     menu_select_level: "Select Level",
     menu_achievements: "Achievements",
@@ -184,8 +184,8 @@ an obstacle visible to the light of heaven.`,
     wordsearch_author_pp4: `Αθηνά Παπαδάκη. 2007. Με άλλα λόγια. Αθήνα: Ροές.`,
     learn_more: `Μάθε περισσότερα`,
     clock_pp5_title: `Ψάξε σε όλα τα ‘μήκη’ και τα ‘πλάτη’ του ποιήματος να βρεις τις λέξεις που ξεκινούν από το ίδιο γράμμα και συμπλήρώσε την Πυξίδα της Καρυάτιδας της Ελευσίνας`,
-    insitu: `Insitu`,
-    generic: `Generic`,
+    insitu: `AR insitu`s
+    generic: `AR generic`,
     clock_pp5_text: `Δεινή μου πάλη,
 nl για ν’ αποβάλλω τη χροιά της σκιάς
 nl απ’ το πρόσωπό μου, γνώση
