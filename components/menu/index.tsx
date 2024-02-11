@@ -20,7 +20,7 @@ export function Menu(
   const router = useRouter();
   const groups = quests
     ?.map((obj) => obj.group)
-    .filter((v, i, a) => a.indexOf(v) === i);
+    .filter((v, i, a) => a.indexOf(v) === i).reverse()
 
   const [reset] = useMutation(
     () => axios.post("/api/auth?type=reset"),
