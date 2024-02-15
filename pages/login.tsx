@@ -14,6 +14,7 @@ export default function Login() {
 
   return (
     <div className="h-screen w-screen bg-black">
+      <img className="fixed right-4 bottom-4 z-50 w-80" src="/espa-logo.jpg" />
       <img
         src="/images/start_map.png"
         className="absolute z-0 h-screen w-screen object-contain"

@@ -39,6 +39,7 @@ export default function Page(props: User) {
 
   return (
     <div className="relative overflow-hidden">
+      <img className="fixed right-4 top-4 z-50 w-80" src="/espa-logo.jpg" />
       <Head>
         <title>Quests</title>
       </Head>

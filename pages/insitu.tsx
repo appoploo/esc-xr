@@ -105,6 +105,8 @@ export default function Page(props: User) {
 
   return (
     <div className="relative h-screen w-screen  ">
+      <img className="fixed right-4 top-4 z-50 w-80" src="/espa-logo.jpg" />
+
       {!xr ? (
         <div className=" h-screen w-screen">
           <Map
